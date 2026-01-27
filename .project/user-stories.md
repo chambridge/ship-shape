@@ -22,6 +22,7 @@
 11. [Epic 10: Reporting & Dashboards](#epic-10-reporting--dashboards)
 12. [Epic 11: Historical Tracking & Trends](#epic-11-historical-tracking--trends)
 13. [Epic 12: Organization-Wide Features](#epic-12-organization-wide-features)
+14. [Epic 13: Testing & Quality Assurance (Meta-Validation)](#epic-13-testing--quality-assurance-meta-validation)
 
 ---
 
@@ -43,6 +44,7 @@
 | EPIC-10 | Reporting & Dashboards | P1 (High) | v0.6.0 | templ, htmx |
 | EPIC-11 | Historical Tracking & Trends | P1 (High) | v0.7.0 | SQLite, gonum/plot |
 | EPIC-12 | Organization-Wide Features | P2 (Medium) | v0.8.0 | SQLite, REST API |
+| EPIC-13 | Testing & Quality Assurance | P0 (Critical) | Continuous | tsDetect, go test, testify |
 
 ### Story Point Reference
 
@@ -2976,6 +2978,307 @@ templ OrganizationDashboard(orgReport *OrganizationReport) {
 
 ---
 
+## Epic 13: Testing & Quality Assurance (Meta-Validation)
+
+**Epic Goal**: Ensure Ship Shape's accuracy and reliability through comprehensive testing, ground truth validation, and dogfooding.
+
+**Priority**: P0 (Critical) - Continuous throughout development
+**Target Release**: Continuous across all versions
+**Dependencies**: All other epics (validates them)
+
+### User Stories
+
+#### SS-120: Ground Truth Dataset Management
+**Story**: As a Ship Shape developer, I want to maintain curated ground truth datasets so that I can validate detector accuracy.
+
+**Story Points**: 8
+
+**Acceptance Criteria**:
+- [ ] Ground truth dataset structure created in `testdata/ground-truth/`
+- [ ] Datasets for all 11 test smell types (positive and negative examples)
+- [ ] Coverage report samples for 4 formats
+- [ ] Test pattern examples for all languages
+- [ ] Metadata.yml for each example with verification details
+- [ ] Version control for all ground truth data
+- [ ] Each example verified by 2+ engineers
+- [ ] OSS project samples (10+ projects)
+
+**Technical Requirements**:
+```go
+type GroundTruthExample struct {
+    File            string
+    SmellType       string
+    Classification  string  // "positive" or "negative"
+    Language        string
+    Description     string
+    DetectionRules  []string
+    VerifiedBy      []Verifier
+    ExpectedResult  ExpectedDetection
+}
+
+type Verifier struct {
+    Name  string
+    Date  time.Time
+    Role  string
+}
+```
+
+**Open Source Tools**:
+- tsDetect benchmark suite
+- Manual curation process
+
+---
+
+#### SS-121: Accuracy Validation Framework
+**Story**: As a Ship Shape developer, I want automated accuracy validation so that I can measure precision and recall for all detectors.
+
+**Story Points**: 13
+
+**Acceptance Criteria**:
+- [ ] Validation test suite for each detector
+- [ ] Precision, recall, F1 calculation
+- [ ] False positive/negative tracking
+- [ ] Confusion matrix generation
+- [ ] CI/CD integration for validation
+- [ ] Weekly validation reports
+- [ ] Accuracy thresholds enforced (≥90% precision, ≥90% recall)
+- [ ] False positive rate ≤10%
+
+**Technical Requirements**:
+```go
+type AccuracyMetrics struct {
+    TruePositives  int
+    FalsePositives int
+    TrueNegatives  int
+    FalseNegatives int
+    Precision      float64
+    Recall         float64
+    F1Score        float64
+    FPRate         float64
+}
+
+func ValidateDetector(
+    detector TestSmellDetector,
+    groundTruth *GroundTruthDataset,
+) (*AccuracyMetrics, error)
+```
+
+**Test Requirements**:
+- Test all 11 smell detectors
+- Test all coverage parsers
+- Test all language analyzers
+- Benchmark against tsDetect (for Java)
+- Weekly CI/CD validation
+- Generate accuracy reports
+
+---
+
+#### SS-122: Dogfooding Framework (Self-Analysis)
+**Story**: As a Ship Shape developer, I want Ship Shape to analyze itself so that I can ensure our tool meets the standards it enforces.
+
+**Story Points**: 8
+
+**Acceptance Criteria**:
+- [ ] Weekly self-analysis in CI/CD
+- [ ] Overall score ≥85/100
+- [ ] Test quality ≥90/100
+- [ ] Coverage ≥90%
+- [ ] Zero critical/high test smells
+- [ ] Self-analysis report in artifacts
+- [ ] Failing self-analysis blocks merge
+- [ ] Trend tracking for self-scores
+
+**Technical Requirements**:
+```bash
+# Pre-commit hook
+./bin/shipshape analyze . --min-score 80 --fail-on high
+
+# CI/CD check
+./bin/shipshape analyze . \
+  --config .shipshape.yml \
+  --output shipshape-self-analysis.html \
+  --fail-on high \
+  --min-score 85
+```
+
+**Test Requirements**:
+- Test pre-commit hook
+- Test CI/CD integration
+- Test score threshold enforcement
+- Verify Ship Shape's tests are smell-free
+- Historical trend tracking
+
+---
+
+#### SS-123: Real-World OSS Validation
+**Story**: As a Ship Shape developer, I want to validate findings on real open-source projects so that I can ensure accuracy in production scenarios.
+
+**Story Points**: 13
+
+**Acceptance Criteria**:
+- [ ] Curated list of 10+ OSS projects (Go, Python, JS, Java, Rust)
+- [ ] Monthly sampling (20 files per project)
+- [ ] Expert manual review process
+- [ ] Agreement rate ≥85% with expert review
+- [ ] False positive tracking
+- [ ] Findings database
+- [ ] Integration with accuracy metrics
+
+**Projects**:
+- Go: kubernetes, docker, prometheus
+- Python: django, flask, requests
+- JavaScript: react, vue, express
+- TypeScript: vscode
+- Java: spring-boot (future)
+- Rust: cargo (future)
+
+**Technical Requirements**:
+```go
+type RealWorldValidation struct {
+    Project    string
+    Files      []*SampledFile
+    ShipShapeFindings  []*Finding
+    ExpertReview       []*ExpertReview
+    AgreementRate      float64
+}
+
+type ExpertReview struct {
+    Finding      *Finding
+    ReviewerName string
+    IsValid      bool
+    Reasoning    string
+    Date         time.Time
+}
+```
+
+**Test Requirements**:
+- Automated OSS project sampling
+- Expert review workflow
+- Agreement calculation
+- False positive categorization
+
+---
+
+#### SS-124: Continuous Validation Infrastructure
+**Story**: As a Ship Shape developer, I want automated continuous validation so that accuracy is continuously monitored and regressions are caught early.
+
+**Story Points**: 13
+
+**Acceptance Criteria**:
+- [ ] Daily: All tests run on every commit
+- [ ] Weekly: Accuracy validation suite
+- [ ] Weekly: Performance benchmarks
+- [ ] Weekly: Self-analysis (dogfooding)
+- [ ] Monthly: Expert review of random findings
+- [ ] Quarterly: Full revalidation
+- [ ] Accuracy dashboard
+- [ ] Automated reports
+- [ ] Alerts on regression
+
+**Technical Requirements**:
+```yaml
+# .github/workflows/validation.yml
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+
+jobs:
+  accuracy-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Validation Suite
+        run: make test-validation
+
+      - name: Generate Accuracy Report
+        run: go run ./cmd/accuracy-report
+
+      - name: Check Thresholds
+        run: |
+          go run ./cmd/accuracy-check \
+            --min-precision 0.90 \
+            --min-recall 0.90 \
+            --max-fp-rate 0.10
+```
+
+**Test Requirements**:
+- CI/CD workflow testing
+- Report generation testing
+- Threshold enforcement testing
+- Alert mechanism testing
+
+---
+
+#### SS-125: Comparison Validation (Academic Benchmarks)
+**Story**: As a Ship Shape developer, I want to compare with academic tools (like tsDetect) so that I can validate against proven baselines.
+
+**Story Points**: 8
+
+**Acceptance Criteria**:
+- [ ] Integration with tsDetect benchmark suite (Java)
+- [ ] ≥90% agreement on validated datasets
+- [ ] Documented differences with justifications
+- [ ] Continuous comparison in validation suite
+- [ ] Comparison report generation
+
+**Technical Requirements**:
+```go
+func CompareWithTsDetect(
+    dataset *TsDetectBenchmark,
+) (*ComparisonReport, error) {
+    // Run Ship Shape on tsDetect dataset
+    // Compare findings
+    // Calculate agreement metrics
+}
+
+type ComparisonReport struct {
+    Agreement      float64
+    Differences    []*Difference
+    Justifications map[string]string
+}
+```
+
+**Test Requirements**:
+- tsDetect dataset integration
+- Agreement calculation
+- Difference categorization
+- Report generation
+
+---
+
+### Epic Summary
+
+**Total Story Points**: 71 points
+**Priority**: P0 (Critical)
+**Timeline**: Continuous throughout development
+
+| Story  | Priority | Points | Target |
+|--------|----------|--------|--------|
+| SS-120 | P0       | 8      | Week 1 |
+| SS-121 | P0       | 13     | Week 2-3 |
+| SS-122 | P0       | 8      | Week 2 |
+| SS-123 | P0       | 13     | Ongoing |
+| SS-124 | P0       | 13     | Week 3-4 |
+| SS-125 | P1       | 8      | Week 5 |
+
+**Dependencies**:
+- SS-120 → Enables all other validation stories
+- SS-121 → Depends on SS-120 (ground truth)
+- SS-122 → Depends on core features being implemented
+- SS-123 → Depends on SS-120, SS-121
+- SS-124 → Depends on SS-121, SS-122
+- SS-125 → Depends on SS-121
+
+**Success Metrics**:
+- Test coverage >90% (unit), >80% (integration)
+- Accuracy: Precision ≥90%, Recall ≥90%
+- False positive rate ≤10%
+- Self-analysis score ≥85/100
+- Expert review agreement ≥85%
+- Zero flaky tests
+- All validation running in CI/CD
+
+---
+
 ## Summary and Implementation Roadmap
 
 ### Release Plan
@@ -3021,8 +3324,16 @@ templ OrganizationDashboard(orgReport *OrganizationReport) {
 **v0.8.0 - Organization Features (Q4 2026)**
 - SS-110: Multi-project analysis
 
-### Total Story Points: 180 points
-**Estimated Development Time**: 36-45 weeks (9-11 months)
+**Continuous - Testing & Validation (All versions)**
+- SS-120: Ground truth dataset management
+- SS-121: Accuracy validation framework
+- SS-122: Dogfooding framework
+- SS-123: Real-world OSS validation
+- SS-124: Continuous validation infrastructure
+- SS-125: Comparison validation
+
+### Total Story Points: 251 points (180 + 71 testing)
+**Estimated Development Time**: 40-50 weeks (10-12.5 months)
 
 ---
 

@@ -22,6 +22,7 @@
 11. [Quality Gates & CI/CD](#quality-gates--cicd)
 12. [Multi-Project Organization Features](#multi-project-organization-features)
 13. [Non-Functional Requirements](#non-functional-requirements)
+14. [Testing and Quality Assurance Requirements](#testing-and-quality-assurance)
 
 ---
 
@@ -1472,6 +1473,77 @@ Rollout Plan:
 - Backward compatible configuration
 - Migration guides for breaking changes
 - Deprecation warnings (1 version advance notice)
+
+### Testing and Quality Assurance
+
+**REQ-TEST-001**: Test coverage requirements:
+- Unit test coverage: >90% for all core components
+- Integration test coverage: >80% for workflows
+- Critical path coverage: 100% (analyzers, scoring, quality gates)
+- Regression test coverage: 100% for all bug fixes
+
+**REQ-TEST-002**: Test quality requirements:
+- Zero test smells in Ship Shape's own tests
+- All tests must be independent and deterministic
+- Test execution time: <1s for 90% of unit tests
+- Test reliability: Zero flaky tests allowed
+- Test maintainability: Clear names, minimal duplication
+
+**REQ-TEST-003**: Accuracy validation requirements:
+- Precision: ≥90% on ground truth datasets for critical detectors
+- Recall: ≥90% on ground truth datasets for critical detectors
+- False positive rate: ≤10% across all detectors
+- F1 Score: ≥0.88 for all smell detectors
+- Accuracy tracking: Continuous monitoring in CI/CD
+
+**REQ-TEST-004**: Ground truth datasets:
+- MUST maintain curated ground truth datasets for all detectors
+- Each example MUST be verified by 2+ engineers
+- Ground truth MUST be versioned and documented
+- MUST include both positive (should detect) and negative (should not detect) examples
+- MUST cover edge cases and variations
+
+**REQ-TEST-005**: Meta-validation (dogfooding):
+- Ship Shape MUST analyze itself weekly
+- Self-analysis score MUST be ≥85/100
+- Test quality dimension MUST score ≥90/100
+- Coverage dimension MUST score ≥90/100
+- Zero critical or high-severity test smells in own codebase
+
+**REQ-TEST-006**: Real-world validation:
+- MUST validate on 10+ popular open-source projects
+- Manual review of 20+ random findings monthly
+- Expert review agreement: ≥85%
+- Community feedback integration process
+- Quarterly accuracy revalidation
+
+**REQ-TEST-007**: Continuous testing:
+- All tests run on every commit (CI/CD)
+- Accuracy validation runs weekly
+- Performance benchmarks run weekly
+- Self-analysis runs weekly
+- Expert review process monthly
+- Comprehensive revalidation quarterly
+
+**REQ-TEST-008**: Test infrastructure:
+- Automated test execution in CI/CD
+- Test result tracking and trending
+- Performance regression detection
+- Accuracy metrics dashboard
+- Ground truth dataset management system
+
+**REQ-TEST-009**: Comparison validation:
+- For languages with academic tools (e.g., tsDetect for Java):
+  - MUST achieve ≥90% agreement on validated datasets
+  - Differences MUST be documented and justified
+  - Continuous comparison in validation suite
+
+**REQ-TEST-010**: Test documentation:
+- All test fixtures MUST have metadata documentation
+- Test rationale MUST be documented for complex cases
+- Ground truth classification MUST include reasoning
+- Test failure investigations MUST be documented
+- Test strategy updates MUST be versioned
 
 ---
 

@@ -35,6 +35,9 @@ Ship Shape v1.0.0 is a comprehensive testing quality and code analysis platform 
 - Interactive HTML reports with visualizations
 - GitHub Actions integration
 - CLI and API interfaces
+- **Meta-validation framework** (Ship Shape analyzes itself with ≥85/100 score)
+- **Ground truth datasets** for accuracy validation (≥90% precision/recall)
+- **Continuous validation infrastructure** (daily tests, weekly accuracy checks)
 
 ### Timeline Summary
 - **Weeks 1-6**: Foundation + Technical Spike Validation
@@ -64,25 +67,31 @@ Phase 1: Technical Spike Validation (Weeks 1-6)
 ├── SPIKE-003: Test Smell Detection (Weeks 3-4)
 ├── SPIKE-004: Coverage Parsing (Weeks 4-5)
 ├── SPIKE-005: GitHub Actions (Weeks 5-6)
-└── SPIKE-006: HTML Reports (Weeks 6-7)
+├── SPIKE-006: HTML Reports (Weeks 6-7)
+└── Ground Truth Dataset Foundation (SS-120)
 
 Phase 2: Core Analysis Engine (Weeks 7-10)
 ├── Analyzer Plugin System
 ├── Language-specific analyzers (Go, Python, JS)
 ├── Test structure analysis
-└── Integration tests
+├── Integration tests
+└── Continuous Validation Infrastructure (SS-124)
 
 Phase 3: Coverage & Quality Analysis (Weeks 11-14)
 ├── Coverage report parsing
 ├── Test smell detection
 ├── Quality scoring system
-└── Assessment framework
+├── Assessment framework
+├── Accuracy Validation Framework (SS-121)
+└── Dogfooding Framework (SS-122)
 
 Phase 4: Advanced Features (Weeks 15-18)
 ├── Monorepo support
 ├── Tool adoption analysis
 ├── CI/CD workflow analysis
-└── Historical trend tracking
+├── Historical trend tracking
+├── Real-World OSS Validation (SS-123)
+└── Comparison Validation with tsDetect (SS-125)
 
 Phase 5: Reporting & Integration (Weeks 19-22)
 ├── HTML report generation
@@ -106,7 +115,7 @@ Phase 6: Production Readiness (Weeks 23-24)
 **Goal**: Establish project infrastructure and core framework
 
 #### Week 1: Project Initialization
-**Story Points**: 21
+**Story Points**: 24
 
 | Task | Story | Priority | Effort | Dependencies |
 |------|-------|----------|--------|--------------|
@@ -116,6 +125,7 @@ Phase 6: Production Readiness (Weeks 23-24)
 | Implement configuration system | SS-101 | P0 | 5 SP | CLI |
 | Setup logging and error handling | - | P0 | 3 SP | None |
 | Create initial test infrastructure | - | P0 | 3 SP | None |
+| **Begin ground truth dataset structure** | **SS-120** | **P0** | **3 SP** | **None** |
 
 **Deliverables**:
 - ✅ Working CLI with `shipshape --version` and `shipshape --help`
@@ -353,7 +363,7 @@ Phase 6: Production Readiness (Weeks 23-24)
 **Goal**: Build production-ready analyzer framework and language-specific analyzers
 
 #### Week 7: Analyzer Plugin System Implementation
-**Story Points**: 21
+**Story Points**: 34
 
 **Based on**: SPIKE-001 outcomes
 
@@ -364,6 +374,7 @@ Phase 6: Production Readiness (Weeks 23-24)
 | Create plugin discovery mechanism | - | P0 | 5 SP | Registry |
 | Implement lifecycle management | - | P0 | 3 SP | Registry |
 | Write comprehensive tests | - | P0 | 5 SP | All above |
+| **Setup continuous validation infrastructure** | **SS-124** | **P0** | **13 SP** | **Test infra** |
 
 **Deliverables**:
 - `internal/analyzer/interface.go` - Core interfaces
@@ -521,8 +532,8 @@ Phase 6: Production Readiness (Weeks 23-24)
 - [ ] False positive rate <10%
 - [ ] 100 files analyzed in <5s
 
-#### Week 14: Scoring & Assessment System
-**Story Points**: 13
+#### Week 14: Scoring & Assessment System + Validation
+**Story Points**: 34
 
 | Task | Story | Priority | Effort | Dependencies |
 |------|-------|----------|--------|--------------|
@@ -530,17 +541,26 @@ Phase 6: Production Readiness (Weeks 23-24)
 | Weighted scoring algorithm | SS-050 | P0 | 3 SP | Scoring |
 | Grade assignment (A-F) | SS-050 | P0 | 2 SP | Scoring |
 | Evidence-based thresholds | SS-050 | P0 | 3 SP | Research |
+| **Implement accuracy validation framework** | **SS-121** | **P0** | **13 SP** | **Smells + Coverage** |
+| **Setup dogfooding framework (self-analysis)** | **SS-122** | **P0** | **8 SP** | **Scoring** |
 
 **Deliverables**:
 - `internal/scoring/scorer.go`
 - Multi-dimensional scoring (6 dimensions)
 - Weighted aggregate calculation
 - Grade assignment (A+, A, B, C, D, F)
+- **`internal/validation/accuracy_validator.go` - Accuracy validation framework**
+- **Ground truth dataset validation (≥90% precision/recall)**
+- **`cmd/shipshape/self_analyze.go` - Dogfooding command**
+- **CI/CD integration for weekly self-analysis**
 
 **Quality Gate**:
 - [ ] Scores align with quality expectations
 - [ ] Thresholds backed by research
 - [ ] Configurable per organization
+- [ ] **Accuracy validation framework operational**
+- [ ] **Ship Shape self-analysis score ≥85/100**
+- [ ] **Weekly self-analysis in CI/CD**
 
 ---
 
@@ -590,8 +610,8 @@ Phase 6: Production Readiness (Weeks 23-24)
 - [ ] Memory usage <2GB for 20 packages
 - [ ] Error in one package doesn't stop others
 
-#### Week 17: Tool Adoption Analysis
-**Story Points**: 13
+#### Week 17: Tool Adoption Analysis + OSS Validation
+**Story Points**: 26
 
 | Task | Story | Priority | Effort | Dependencies |
 |------|-------|----------|--------|--------------|
@@ -599,20 +619,27 @@ Phase 6: Production Readiness (Weeks 23-24)
 | Tool registry (essential/recommended) | SS-060 | P0 | 3 SP | Detection |
 | Missing tool recommendations | SS-061 | P0 | 3 SP | Registry |
 | Setup guide generation | SS-061 | P0 | 2 SP | Recommendations |
+| **Real-world OSS validation (10+ projects)** | **SS-123** | **P0** | **13 SP** | **All analyzers** |
 
 **Deliverables**:
 - `internal/tools/detector.go`
 - Tool registry with categories
 - Language-specific tool recommendations
 - Setup guide templates
+- **OSS validation report (10+ popular projects: kubernetes, django, react, vue, etc.)**
+- **Accuracy metrics from real-world testing**
+- **Identified edge cases and pattern improvements**
 
 **Quality Gate**:
 - [ ] Detects tools from dependencies
 - [ ] Categorizes by testing/quality/security
 - [ ] Provides setup guides for missing tools
+- [ ] **10+ OSS projects validated successfully**
+- [ ] **Accuracy ≥90% on real-world projects**
+- [ ] **False positive rate ≤10%**
 
-#### Week 18: CI/CD Workflow Analysis
-**Story Points**: 8
+#### Week 18: CI/CD Workflow Analysis + Comparison Validation
+**Story Points**: 16
 
 **Based on**: SPIKE-005 outcomes
 
@@ -621,17 +648,23 @@ Phase 6: Production Readiness (Weeks 23-24)
 | Implement workflow YAML parser | SS-080 | P0 | 3 SP | SPIKE-005 |
 | Optimization detector | SS-080 | P0 | 3 SP | Parser |
 | Performance recommendations | SS-080 | P0 | 2 SP | Detector |
+| **Comparison validation with tsDetect** | **SS-125** | **P0** | **8 SP** | **Smell detectors** |
 
 **Deliverables**:
 - `internal/github/workflow_analyzer.go`
 - GitHub Actions workflow parsing
 - Optimization detection (caching, parallelization)
 - Performance improvement suggestions
+- **Comparison report with tsDetect (academic tool)**
+- **Agreement metrics (≥90% agreement required)**
+- **Differences analysis and justification**
 
 **Quality Gate**:
 - [ ] Parses GitHub Actions YAML
 - [ ] Detects missing caching
 - [ ] Identifies parallelization opportunities
+- [ ] **≥90% agreement with tsDetect on test smells**
+- [ ] **All disagreements justified and documented**
 
 ---
 
@@ -856,6 +889,14 @@ Integration Layer (Depends on Scoring):
 Monorepo Layer (Depends on Base Analyzers):
 ├── SS-020: Package Analysis
 └── SS-021: Aggregate Scoring
+
+Testing & Validation Layer (Continuous):
+├── SS-120: Ground Truth Dataset Management (Foundation - Week 1+)
+├── SS-124: Continuous Validation Infrastructure (Phase 2 - Week 7)
+├── SS-121: Accuracy Validation Framework (Phase 3 - Week 14)
+├── SS-122: Dogfooding Framework (Phase 3 - Week 14)
+├── SS-123: Real-World OSS Validation (Phase 4 - Week 17)
+└── SS-125: Comparison Validation with tsDetect (Phase 4 - Week 18)
 ```
 
 ### Spike Dependencies
@@ -1104,6 +1145,10 @@ Add:
 - [ ] Build succeeds
 - [ ] Code review complete for week's work
 - [ ] Demo of completed features
+- [ ] **Accuracy validation on ground truth datasets (from Week 14+)**
+- [ ] **Ship Shape self-analysis passing (score ≥85/100, from Week 14+)**
+- [ ] **Performance benchmarks met**
+- [ ] **Zero regressions in test quality metrics**
 
 ### Phase Quality Gates
 
@@ -1112,6 +1157,8 @@ Add:
 - [ ] Repository discovery working
 - [ ] >90% test coverage
 - [ ] CI/CD pipeline operational
+- [ ] **Ground truth dataset structure established**
+- [ ] **Initial test smell examples curated**
 
 **End of Phase 1 (Week 7)**:
 - [ ] All 6 spikes validated (Go decisions)
@@ -1124,18 +1171,31 @@ Add:
 - [ ] 3 language analyzers functional
 - [ ] Test structure analysis working
 - [ ] >90% test coverage maintained
+- [ ] **Continuous validation infrastructure operational**
+- [ ] **Daily test suite running automatically**
+- [ ] **Ground truth datasets expanded (30+ examples per smell type)**
 
 **End of Phase 3 (Week 14)**:
 - [ ] Coverage parsing working (4 formats)
 - [ ] Test smell detection operational (11 types)
 - [ ] Scoring system functional
 - [ ] Quality assessment accurate
+- [ ] **Accuracy validation framework operational**
+- [ ] **Precision ≥90% and Recall ≥90% on ground truth datasets**
+- [ ] **False positive rate ≤10%**
+- [ ] **Dogfooding framework working (Ship Shape analyzes itself)**
+- [ ] **Self-analysis score ≥85/100**
+- [ ] **Weekly self-analysis integrated into CI/CD**
 
 **End of Phase 4 (Week 18)**:
 - [ ] Monorepo support complete
 - [ ] Tool adoption analysis working
 - [ ] CI/CD workflow analysis functional
 - [ ] Advanced features operational
+- [ ] **10+ OSS projects validated successfully**
+- [ ] **Real-world accuracy ≥90%**
+- [ ] **Comparison with tsDetect completed (≥90% agreement)**
+- [ ] **All disagreements documented and justified**
 
 **End of Phase 5 (Week 22)**:
 - [ ] HTML reports generated correctly
@@ -1167,6 +1227,35 @@ Add:
 - All benchmark targets met
 - No performance regressions
 - Memory usage within limits
+
+### Continuous Validation Schedule
+
+**Daily** (Automated in CI/CD):
+- [ ] All unit and integration tests
+- [ ] Build verification
+- [ ] Linting and code quality checks
+- [ ] Performance regression tests
+
+**Weekly** (Every Friday):
+- [ ] Accuracy validation on ground truth datasets
+- [ ] Ship Shape self-analysis (dogfooding)
+- [ ] Performance benchmarks on real repositories
+- [ ] Test coverage analysis
+- [ ] False positive rate monitoring
+
+**Monthly** (First Friday of month):
+- [ ] Expert review of 20 random findings
+- [ ] Ground truth dataset expansion
+- [ ] Real-world OSS validation (sample projects)
+- [ ] Accuracy trend analysis
+- [ ] Team retrospective on validation findings
+
+**Quarterly** (End of quarter):
+- [ ] Full revalidation on all ground truth datasets
+- [ ] Comprehensive OSS validation (all 10+ projects)
+- [ ] Comparison validation with tsDetect
+- [ ] External expert review
+- [ ] Validation framework improvements
 
 ### Code Quality Standards
 
@@ -1302,6 +1391,17 @@ Add:
 - [ ] Test smell detection: >90%
 - [ ] False positive rate: <10%
 
+**Validation & Meta-Testing**:
+- [ ] **Ground truth datasets: 30+ examples per smell type (11 types = 330+ examples)**
+- [ ] **Precision ≥90% on ground truth datasets**
+- [ ] **Recall ≥90% on ground truth datasets**
+- [ ] **F1 Score ≥0.88 for all smell detectors**
+- [ ] **Ship Shape self-analysis score ≥85/100**
+- [ ] **Test quality dimension score ≥90/100**
+- [ ] **10+ OSS projects validated (kubernetes, django, react, vue, etc.)**
+- [ ] **≥90% agreement with tsDetect (academic baseline)**
+- [ ] **Continuous validation running: daily tests, weekly accuracy checks**
+
 ### Project Success Metrics
 
 **Development**:
@@ -1337,12 +1437,27 @@ Add:
 | 13 SP | Highly Complex | Major feature, multiple dependencies |
 | 21 SP | Epic | Too large, should be broken down |
 
+### Total Story Points
+
+**Original Features**: 180 SP
+**Testing & Validation (Epic 13)**: 71 SP
+- SS-120: Ground Truth Dataset Management (8 SP)
+- SS-121: Accuracy Validation Framework (13 SP)
+- SS-122: Dogfooding Framework (8 SP)
+- SS-123: Real-World OSS Validation (13 SP)
+- SS-124: Continuous Validation Infrastructure (13 SP)
+- SS-125: Comparison Validation with tsDetect (8 SP)
+- Additional validation work distributed across phases (+8 SP)
+
+**Total Project**: 251 SP
+
 ### Velocity Assumptions
 
 **Team of 3**:
 - Average velocity: 21 SP/week
 - With ramp-up: 15-18 SP/week (first 2 weeks)
 - At peak: 24-27 SP/week (weeks 8-20)
+- **Note**: Testing stories increase some weeks to 30+ SP, requiring careful prioritization
 
 **Team of 5**:
 - Average velocity: 35 SP/week
@@ -1373,6 +1488,40 @@ Add:
 - godoc
 - Markdown
 - Hugo (docs site - optional)
+
+### Meta-Validation Approach
+
+**The Challenge**: How to validate a testing quality tool? (Circular dependency problem)
+
+**Three-Phase Validation Strategy**:
+
+**Phase 1: Bootstrap with External Validation** (Weeks 1-6)
+- Academic research as ground truth (tsDetect, SniffTest)
+- Manual code review by testing experts
+- Literature-based test smell definitions
+- **Trust Chain**: Academic Research → Ground Truth Datasets
+
+**Phase 2: Establish Confidence** (Weeks 7-14)
+- Build curated ground truth datasets (30+ examples per smell type)
+- Validate accuracy metrics (≥90% precision/recall)
+- Continuous validation infrastructure operational
+- **Trust Chain**: Ground Truth → Ship Shape Detectors
+
+**Phase 3: Self-Validation (Dogfooding)** (Weeks 14+)
+- Use Ship Shape on itself only after phases 1-2 complete
+- Weekly self-analysis in CI/CD (≥85/100 score required)
+- Real-world OSS validation (10+ projects)
+- Comparison with academic tools (≥90% agreement)
+- **Trust Chain**: Ship Shape → Self-Analysis → Production Use
+
+**Continuous Validation** (Post-Phase 3):
+- **Daily**: All tests on every commit
+- **Weekly**: Accuracy validation, performance benchmarks, self-analysis
+- **Monthly**: Expert review of 20 random findings
+- **Quarterly**: Full revalidation on all datasets
+
+**Breaking the Circular Dependency**:
+We validate Ship Shape using external sources (academic research, expert review) BEFORE using Ship Shape to validate itself. This establishes trust through independent verification first, then maintains trust through continuous self-analysis.
 
 ---
 
