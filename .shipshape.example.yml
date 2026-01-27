@@ -1,0 +1,374 @@
+# Ship Shape Configuration File
+# Version: 1.0.0
+# Documentation: https://github.com/chambridge/ship-shape/docs/configuration.md
+
+# Configuration file version (required)
+version: 1
+
+# ==============================================================================
+# Analysis Configuration
+# ==============================================================================
+
+analysis:
+  # Enable parallel analysis of multiple files/packages (default: true)
+  parallel: true
+
+  # Maximum number of parallel workers (default: auto-detect from CPU cores)
+  # Set to 0 for auto-detection, or specify 1-16
+  max-workers: 0
+
+  # Global analysis timeout (default: 10m)
+  # Formats: 30s, 5m, 1h
+  timeout: 10m
+
+  # Timeout per individual analyzer (default: 5m)
+  analyzer-timeout: 5m
+
+  # Enable AST caching for faster re-analysis (default: true)
+  cache-ast: true
+
+  # Languages to analyze (default: auto-detect)
+  # Leave empty for auto-detection, or specify: go, python, javascript, typescript, java, rust
+  languages: []
+  # Example: languages: [go, python]
+
+  # Path patterns to exclude (glob format)
+  exclude:
+    - "**/node_modules/**"
+    - "**/vendor/**"
+    - "**/.venv/**"
+    - "**/venv/**"
+    - "**/__pycache__/**"
+    - "**/target/**"
+    - "**/build/**"
+    - "**/dist/**"
+    - "**/.next/**"
+    - "**/.git/**"
+
+  # Path patterns to include (overrides exclude)
+  # include:
+  #   - "src/**"
+  #   - "pkg/**"
+
+# ==============================================================================
+# Scoring Configuration
+# ==============================================================================
+
+scoring:
+  # Dimension weights (must sum to 1.0)
+  # These control the contribution of each dimension to the overall score
+  weights:
+    coverage: 0.30        # Test coverage metrics (line, branch, function)
+    quality: 0.25         # Test quality (smells, patterns, organization)
+    performance: 0.15     # Test execution speed, flakiness
+    tools: 0.15           # Testing tool adoption and best practices
+    maintainability: 0.10 # Test-to-code ratio, duplication
+    code-quality: 0.05    # Integration with static analysis
+
+  # Tier-based attribute weights (from AgentReady pattern)
+  # Controls importance of different attribute tiers
+  tier-weights:
+    essential: 0.50   # Tier 1: Must-have fundamentals
+    critical: 0.30    # Tier 2: Quality & maintainability
+    important: 0.15   # Tier 3: Excellence & optimization
+    advanced: 0.05    # Tier 4: Cutting-edge practices
+
+  # Minimum thresholds for each dimension (0-100)
+  # If any dimension falls below threshold, overall grade is capped
+  min-thresholds:
+    coverage: 50      # At least 50% coverage
+    quality: 60       # At least 60% quality score
+    performance: 0    # No minimum (performance varies by project)
+    tools: 40         # Some basic tooling required
+    maintainability: 50
+    code-quality: 0
+
+# ==============================================================================
+# Coverage Configuration
+# ==============================================================================
+
+coverage:
+  # Coverage file paths to analyze (auto-detected if not specified)
+  # Auto-detection looks for:
+  #   - Go: coverage.out, coverage.txt
+  #   - Python: coverage.xml, .coverage, htmlcov/
+  #   - JavaScript: coverage/lcov.info, coverage-final.json
+  #   - Java: target/site/jacoco/jacoco.xml
+  paths: []
+  # Example: paths: ["coverage.out", "coverage.xml", "coverage/lcov.info"]
+
+  # Coverage thresholds (percentages)
+  thresholds:
+    line: 80          # Target line coverage: ≥80%
+    branch: 70        # Target branch coverage: ≥70%
+    function: 90      # Target function coverage: ≥90%
+
+  # Report uncovered critical paths as high severity
+  critical-paths-required: true
+
+# ==============================================================================
+# Test Quality Configuration
+# ==============================================================================
+
+quality:
+  # Test smell detection
+  smells:
+    # Enable test smell detection (default: true)
+    enabled: true
+
+    # Maximum acceptable smells per 100 tests
+    max-per-100-tests: 5
+
+    # Smell severity overrides (default severities defined in code)
+    # severity-overrides:
+    #   mystery-guest: critical
+    #   assertion-roulette: high
+    #   eager-test: medium
+
+    # Specific smells to enable/disable
+    detect:
+      mystery-guest: true
+      eager-test: true
+      lazy-test: true
+      assertion-roulette: true
+      conditional-logic: true
+      general-fixture: true
+      obscure-test: true
+      sensitive-equality: true
+      resource-optimism: true
+      code-duplication: true
+      flakiness: true
+
+  # Best practices detection
+  patterns:
+    # Framework-specific pattern thresholds
+    go:
+      min-table-driven-percentage: 50  # At least 50% table-driven tests
+      min-parallel-percentage: 30      # At least 30% t.Parallel() usage
+      require-testify: false           # Don't require testify library
+
+    python:
+      min-parametrize-percentage: 50   # At least 50% parametrized tests
+      min-fixture-usage: 40            # At least 40% fixture usage
+      prefer-pytest: true              # Recommend pytest over unittest
+
+    javascript:
+      min-describe-it-percentage: 80   # At least 80% describe/it structure
+      min-async-await-percentage: 60   # Modern async patterns
+      prefer-jest: false               # Don't require specific framework
+
+# ==============================================================================
+# Quality Gates
+# ==============================================================================
+
+gates:
+  # Fail analysis if findings of specified severity are found
+  # Options: critical, high, medium, low, info, none (default: none)
+  fail-on: none
+
+  # Fail if overall score falls below threshold (0-100)
+  # Set to 0 to disable (default: 0)
+  min-score: 0
+
+  # Fail on score regression
+  # Requires baseline analysis for comparison
+  fail-on-regression:
+    enabled: false
+    baseline-file: shipshape-baseline.json
+    max-score-drop: 5  # Fail if score drops more than 5 points
+
+  # Fail on coverage regression
+  fail-on-coverage-drop:
+    enabled: false
+    max-drop-percentage: 2  # Fail if coverage drops more than 2%
+
+  # Custom gate rules
+  # custom-gates:
+  #   - name: "no-critical-smells"
+  #     type: smell-count
+  #     severity: critical
+  #     max-count: 0
+  #   - name: "min-test-count"
+  #     type: test-count
+  #     min-count: 10
+
+# ==============================================================================
+# Output Configuration
+# ==============================================================================
+
+output:
+  # Default output format: html, json, markdown, text (default: html)
+  format: html
+
+  # Default output path (default: shipshape-report.{format})
+  path: shipshape-report.html
+
+  # Generate multiple formats simultaneously
+  formats:
+    - type: html
+      path: shipshape-report.html
+    # - type: json
+    #   path: shipshape-results.json
+    # - type: markdown
+    #   path: SHIPSHAPE.md
+
+  # Report customization
+  report:
+    # Report title
+    title: "Ship Shape Analysis Report"
+
+    # Include detailed findings (default: true)
+    include-findings: true
+
+    # Include source code snippets in findings (default: true)
+    include-code-snippets: true
+
+    # Maximum lines per code snippet (default: 10)
+    max-snippet-lines: 10
+
+    # Theme for HTML reports: light, dark, auto (default: auto)
+    theme: auto
+
+    # Open report in browser after generation (default: false)
+    open-browser: false
+
+# ==============================================================================
+# CI/CD Integration
+# ==============================================================================
+
+ci:
+  # Enable CI/CD integration features (auto-detected)
+  # Set to false to disable even in CI environments
+  enabled: true
+
+  # Upload results to CI system
+  upload-results: true
+
+  # GitHub Actions specific settings
+  github-actions:
+    # Create check run with results
+    create-check: true
+
+    # Post comment on pull requests
+    comment-pr: true
+
+    # Update comment if already exists (don't spam)
+    update-comment: true
+
+    # Annotations for findings
+    create-annotations: true
+
+    # Upload report as artifact
+    upload-artifact: true
+    artifact-name: shipshape-report
+
+  # Generic CI settings
+  artifacts:
+    # Directory to store artifacts
+    directory: .shipshape-artifacts
+
+# ==============================================================================
+# Historical Tracking
+# ==============================================================================
+
+history:
+  # Enable historical tracking (default: false)
+  enabled: false
+
+  # Database file for historical data (SQLite)
+  database: .shipshape/history.db
+
+  # Retention policy
+  retention:
+    # Keep data for this many days (default: 365)
+    days: 365
+
+    # Maximum number of analyses to keep per repository (default: 1000)
+    max-analyses: 1000
+
+# ==============================================================================
+# Advanced Configuration
+# ==============================================================================
+
+advanced:
+  # Enable debug logging (default: false)
+  debug: false
+
+  # Log file path (default: stderr)
+  # log-file: shipshape-debug.log
+
+  # Enable profiling (for performance debugging)
+  # profile:
+  #   enabled: false
+  #   cpu: shipshape-cpu.prof
+  #   memory: shipshape-mem.prof
+
+  # Custom analyzer configuration
+  # analyzers:
+  #   go-test-analyzer:
+  #     timeout: 2m
+  #     options:
+  #       detect-benchmarks: true
+  #   python-pytest-analyzer:
+  #     timeout: 5m
+  #     options:
+  #       detect-markers: true
+
+# ==============================================================================
+# Notifications (Future Feature)
+# ==============================================================================
+
+# notifications:
+#   slack:
+#     enabled: false
+#     webhook-url: ${SLACK_WEBHOOK_URL}
+#     on-failure: true
+#     on-success: false
+#   email:
+#     enabled: false
+#     recipients:
+#       - team@example.com
+#     on-failure: true
+
+# ==============================================================================
+# Example Configurations for Different Use Cases
+# ==============================================================================
+
+# Minimal Configuration:
+# ---
+# version: 1
+# analysis:
+#   parallel: true
+# gates:
+#   min-score: 70
+
+# Strict Configuration (for production):
+# ---
+# version: 1
+# gates:
+#   fail-on: high
+#   min-score: 85
+# coverage:
+#   thresholds:
+#     line: 90
+#     branch: 80
+# quality:
+#   smells:
+#     max-per-100-tests: 2
+
+# CI/CD Configuration:
+# ---
+# version: 1
+# analysis:
+#   timeout: 5m
+# gates:
+#   fail-on: critical
+#   min-score: 70
+# output:
+#   formats:
+#     - type: html
+#     - type: json
+# ci:
+#   enabled: true
+#   github-actions:
+#     comment-pr: true
