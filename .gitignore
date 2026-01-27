@@ -1,0 +1,115 @@
+# Ship Shape - .gitignore
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.txt
+coverage.html
+*.coverprofile
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# Go build cache
+.cache/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.local
+
+# SQLite databases (historical data)
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build artifacts
+build/
+output/
+
+# Plugin binaries
+plugins/*.so
+
+# HTML/JSON report outputs (generated)
+reports/
+*.report.html
+*.report.json
+
+# Node modules (for any JS tooling)
+node_modules/
+
+# Python (for helper scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+
+# Documentation build artifacts
+docs/_build/
+site/
+
+# Testing artifacts
+.testcache/
+testdata/output/
+
+# Keep project documentation and configuration
+!.project/
+!.research/
+!.claude/
+
+# But ignore sensitive data in these directories
+.claude/**/*.secret
+.claude/**/*.key
+.claude/**/*.token
+.research/**/*.secret
+
+# Ignore large tool result files but keep structure
+.claude/projects/*/tool-results/*.txt
+
+# Ship Shape specific
+.shipshape/
+shipshape-results/
