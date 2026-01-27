@@ -113,3 +113,5 @@ testdata/output/
 # Ship Shape specific
 .shipshape/
 shipshape-results/
+
+.claude/settings.local.json
