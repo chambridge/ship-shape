@@ -848,6 +848,221 @@ func (im *InitializationManager) CleanupAll() error {
 
 ---
 
+## Factory Pattern for Analyzer Creation
+
+### Overview
+
+The Factory Pattern provides a centralized, maintainable way to create and manage analyzer instances, inspired by AgentReady's assessor factory pattern. This approach makes it easy to add new analyzers and ensures consistent initialization.
+
+### Analyzer Factory Function
+
+```go
+// pkg/analyzers/factory.go
+package analyzers
+
+import (
+    "github.com/yourusername/shipshape/pkg/analyzers/goanalyzer"
+    "github.com/yourusername/shipshape/pkg/analyzers/pythonanalyzer"
+    "github.com/yourusername/shipshape/pkg/analyzers/jsanalyzer"
+    "github.com/yourusername/shipshape/pkg/core"
+)
+
+// NewAllAnalyzers creates all built-in analyzers (Factory Pattern)
+// Inspired by AgentReady's create_all_assessors() pattern
+func NewAllAnalyzers() []core.Analyzer {
+    return []core.Analyzer{
+        // Go analyzers
+        goanalyzer.NewGoTestAnalyzer(),
+        goanalyzer.NewGoTableDrivenAnalyzer(),
+        goanalyzer.NewGoParallelAnalyzer(),
+        goanalyzer.NewGoBenchmarkAnalyzer(),
+
+        // Python analyzers
+        pythonanalyzer.NewPytestAnalyzer(),
+        pythonanalyzer.NewUnittestAnalyzer(),
+        pythonanalyzer.NewPythonFixtureAnalyzer(),
+        pythonanalyzer.NewPythonParametrizeAnalyzer(),
+
+        // JavaScript/TypeScript analyzers
+        jsanalyzer.NewJestAnalyzer(),
+        jsanalyzer.NewVitestAnalyzer(),
+        jsanalyzer.NewCypressAnalyzer(),
+        jsanalyzer.NewPlaywrightAnalyzer(),
+
+        // Java analyzers (when implemented)
+        // javaanalyzer.NewJUnitAnalyzer(),
+        // javaanalyzer.NewTestNGAnalyzer(),
+    }
+}
+
+// NewAnalyzersForLanguage creates language-specific analyzer subset
+func NewAnalyzersForLanguage(language string) []core.Analyzer {
+    all := NewAllAnalyzers()
+    filtered := make([]core.Analyzer, 0)
+
+    for _, analyzer := range all {
+        meta := analyzer.GetMetadata()
+        for _, lang := range meta.Languages {
+            if lang == language {
+                filtered = append(filtered, analyzer)
+                break
+            }
+        }
+    }
+
+    return filtered
+}
+
+// NewAnalyzersForRepository creates context-aware analyzer subset
+// Only returns analyzers applicable to the given repository context
+func NewAnalyzersForRepository(repoCtx *core.RepositoryContext) []core.Analyzer {
+    all := NewAllAnalyzers()
+    applicable := make([]core.Analyzer, 0)
+
+    for _, analyzer := range all {
+        // Check if analyzer's IsApplicable method returns true
+        if analyzer.IsApplicable(repoCtx) {
+            applicable = append(applicable, analyzer)
+        }
+    }
+
+    return applicable
+}
+
+// NewAnalyzersByCapability creates analyzers with specific capability
+func NewAnalyzersByCapability(capability core.Capability) []core.Analyzer {
+    all := NewAllAnalyzers()
+    filtered := make([]core.Analyzer, 0)
+
+    for _, analyzer := range all {
+        meta := analyzer.GetMetadata()
+        for _, cap := range meta.Capabilities {
+            if cap == capability {
+                filtered = append(filtered, analyzer)
+                break
+            }
+        }
+    }
+
+    return filtered
+}
+```
+
+### Registry Integration with Factory
+
+The factory pattern integrates seamlessly with the Registry:
+
+```go
+// pkg/engine/registry.go (enhanced)
+package engine
+
+import (
+    "github.com/yourusername/shipshape/pkg/analyzers"
+    "github.com/yourusername/shipshape/pkg/core"
+)
+
+type Registry struct {
+    analyzers map[string]core.Analyzer
+    assessors map[core.ScoreDimension][]core.Assessor
+    mu        sync.RWMutex
+}
+
+// Initialize registers all built-in analyzers using factory pattern
+func (r *Registry) Initialize() {
+    // Use factory to create all analyzers
+    allAnalyzers := analyzers.NewAllAnalyzers()
+
+    for _, analyzer := range allAnalyzers {
+        r.RegisterAnalyzer(analyzer)
+    }
+
+    // Similarly for assessors
+    allAssessors := assessors.NewAllAssessors()
+    for _, assessor := range allAssessors {
+        r.RegisterAssessor(assessor)
+    }
+}
+
+// InitializeForLanguage registers only language-specific analyzers
+func (r *Registry) InitializeForLanguage(language string) {
+    languageAnalyzers := analyzers.NewAnalyzersForLanguage(language)
+
+    for _, analyzer := range languageAnalyzers {
+        r.RegisterAnalyzer(analyzer)
+    }
+}
+```
+
+### Benefits of Factory Pattern
+
+**From AgentReady's Proven Approach**:
+
+1. **Single Source of Truth**: All analyzer creation in one place
+2. **Easy to Extend**: Adding new analyzer = one line in factory
+3. **Context-Aware Filtering**: Select only applicable analyzers
+4. **Testability**: Easy to mock factory for tests
+5. **Discoverability**: Developers can see all analyzers at a glance
+6. **Conditional Loading**: Enable/disable analyzers based on config
+
+### Usage Examples
+
+```go
+// Example 1: Load all analyzers (comprehensive analysis)
+analyzers := analyzers.NewAllAnalyzers()
+for _, analyzer := range analyzers {
+    result := analyzer.Analyze(ctx, request)
+}
+
+// Example 2: Language-specific analysis (faster, focused)
+goAnalyzers := analyzers.NewAnalyzersForLanguage("Go")
+for _, analyzer := range goAnalyzers {
+    result := analyzer.Analyze(ctx, request)
+}
+
+// Example 3: Repository-aware analysis (most efficient)
+repoCtx := discovery.DiscoverRepository(repoPath)
+applicableAnalyzers := analyzers.NewAnalyzersForRepository(repoCtx)
+for _, analyzer := range applicableAnalyzers {
+    result := analyzer.Analyze(ctx, request)
+}
+
+// Example 4: Capability-based analysis
+smellDetectors := analyzers.NewAnalyzersByCapability(core.CapabilitySmellDetection)
+for _, detector := range smellDetectors {
+    result := detector.Analyze(ctx, request)
+}
+```
+
+### Testing with Factory Pattern
+
+The factory makes testing much easier:
+
+```go
+// Mock factory for tests
+func NewMockAnalyzers() []core.Analyzer {
+    return []core.Analyzer{
+        &MockGoAnalyzer{},
+        &MockPythonAnalyzer{},
+    }
+}
+
+func TestScannerWithMockAnalyzers(t *testing.T) {
+    // Replace real factory with mock
+    originalFactory := analyzers.NewAllAnalyzers
+    analyzers.NewAllAnalyzers = NewMockAnalyzers
+    defer func() { analyzers.NewAllAnalyzers = originalFactory }()
+
+    // Test scanner with mocked analyzers
+    scanner := services.NewScanner(repoPath, config)
+    assessment := scanner.Scan(ctx)
+
+    // Verify results
+    assert.NotNil(t, assessment)
+}
+```
+
+---
+
 ## Language-Specific Analyzer Implementations
 
 ### 1. Go Analyzer Implementation

@@ -761,9 +761,15 @@ type Finding struct {
     CheckID         string           // Analyzer check identifier
     Type            FindingType
     Severity        Severity
+    Status          FindingStatus    // Pass, fail, skipped, error, or not applicable
     Title           string
     Description     string
     Location        *Location
+
+    // Transparency fields (inspired by AgentReady pattern)
+    MeasuredValue   string           // e.g., "63% coverage", "12 test smells"
+    Threshold       string           // e.g., "≥80% coverage", "0 critical smells"
+
     Evidence        []string         // Code snippets, log lines, etc.
     Remediation     *Remediation
     References      []*Reference
@@ -794,6 +800,17 @@ const (
     SeverityCritical Severity = "critical"
 )
 
+// FindingStatus represents the outcome of a check (inspired by AgentReady pattern)
+type FindingStatus string
+
+const (
+    FindingStatusPass          FindingStatus = "pass"           // Check passed
+    FindingStatusFail          FindingStatus = "fail"           // Check failed
+    FindingStatusSkipped       FindingStatus = "skipped"        // Check not run (intentionally)
+    FindingStatusError         FindingStatus = "error"          // Check errored (unintentionally)
+    FindingStatusNotApplicable FindingStatus = "not_applicable" // Check doesn't apply to this context
+)
+
 type Location struct {
     FilePath        string
     StartLine       int
@@ -802,11 +819,17 @@ type Location struct {
     EndColumn       int
 }
 
+// Remediation provides actionable guidance for fixing findings (enhanced from AgentReady pattern)
 type Remediation struct {
-    Description     string
+    Summary         string           // One-line summary
+    Description     string           // Detailed description
+    Steps           []string         // Ordered remediation steps
+    Tools           []string         // Required tools (e.g., "pytest", "coverage.py")
+    Commands        []string         // Example commands to run
     Effort          EffortLevel
     AutoFix         *AutoFix
-    Examples        []string
+    Examples        []string         // Code examples
+    Citations       []*Citation      // Academic references
 }
 
 type EffortLevel string
@@ -831,6 +854,17 @@ type Reference struct {
     URL             string
     DOI             string
     Summary         string
+}
+
+// Citation represents an academic reference (inspired by AgentReady pattern)
+type Citation struct {
+    Authors         []string         // Author names
+    Title           string           // Paper/article title
+    Publication     string           // Journal/conference name
+    Year            int              // Publication year
+    DOI             string           // Digital Object Identifier
+    URL             string           // Link to paper
+    Summary         string           // Brief summary of relevance
 }
 
 // pkg/core/result.go
@@ -1993,6 +2027,291 @@ func (r *Registry) Initialize() {
     r.RegisterAssessor(assessors.NewMaintainabilityAssessor())
     r.RegisterAssessor(assessors.NewCodeQualityAssessor())
 }
+```
+
+---
+
+## Service Layer (Orchestration Pattern)
+
+### Overview
+
+The Service Layer provides high-level orchestration of the complete analysis workflow, inspired by AgentReady's service pattern. It separates business logic from execution details, making the codebase easier to test and maintain.
+
+**Key Responsibilities**:
+- Repository validation
+- Workflow coordination
+- Graceful degradation on failures
+- Result aggregation
+- Error handling and recovery
+
+### Scanner Service
+
+The `Scanner` service is the main entry point for repository analysis:
+
+```go
+// pkg/services/scanner.go
+package services
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "time"
+
+    "github.com/yourusername/shipshape/pkg/core"
+    "github.com/yourusername/shipshape/pkg/discovery"
+    "github.com/yourusername/shipshape/pkg/engine"
+)
+
+// Scanner orchestrates the complete repository analysis workflow
+type Scanner struct {
+    config         *Config
+    registry       *engine.Registry
+    discoveryEng   *discovery.Engine
+    executionEng   *engine.ExecutionEngine
+    repoPath       string
+}
+
+// NewScanner creates a new Scanner instance
+func NewScanner(repoPath string, config *Config) *Scanner {
+    return &Scanner{
+        config:       config,
+        registry:     engine.NewRegistry(),
+        discoveryEng: discovery.NewEngine(),
+        executionEng: engine.NewExecutionEngine(),
+        repoPath:     repoPath,
+    }
+}
+
+// Scan executes the complete analysis workflow with graceful degradation
+func (s *Scanner) Scan(ctx context.Context) (*Assessment, error) {
+    // 1. Validate repository
+    if err := s.validateRepository(); err != nil {
+        return nil, fmt.Errorf("repository validation failed: %w", err)
+    }
+
+    // 2. Discover repository structure
+    repoCtx, err := s.discoverRepository(ctx)
+    if err != nil {
+        return nil, fmt.Errorf("repository discovery failed: %w", err)
+    }
+
+    // 3. Initialize registry with all analyzers and assessors
+    s.registry.Initialize()
+
+    // 4. Select applicable analyzers based on repository context
+    analyzers := s.registry.SelectAnalyzers(repoCtx)
+    if len(analyzers) == 0 {
+        return nil, fmt.Errorf("no applicable analyzers found for repository")
+    }
+
+    // 5. Execute analyzers with graceful degradation
+    findings, metrics := s.executeAnalyzers(ctx, analyzers, repoCtx)
+
+    // 6. Select and run assessors for scoring
+    scores := s.runAssessors(ctx, repoCtx, findings, metrics)
+
+    // 7. Build final assessment
+    assessment := s.buildAssessment(repoCtx, findings, scores, metrics)
+
+    return assessment, nil
+}
+
+// validateRepository ensures the path is a valid repository
+func (s *Scanner) validateRepository() error {
+    // Check path exists
+    if _, err := os.Stat(s.repoPath); os.IsNotExist(err) {
+        return fmt.Errorf("repository path does not exist: %s", s.repoPath)
+    }
+
+    // Check for .git directory (or could be relaxed)
+    gitPath := filepath.Join(s.repoPath, ".git")
+    if _, err := os.Stat(gitPath); os.IsNotExist(err) {
+        log.Warnf("No .git directory found at %s - continuing anyway", s.repoPath)
+    }
+
+    return nil
+}
+
+// discoverRepository runs repository discovery phase
+func (s *Scanner) discoverRepository(ctx context.Context) (*core.RepositoryContext, error) {
+    return s.discoveryEng.Discover(ctx, s.repoPath)
+}
+
+// executeAnalyzers runs all analyzers with graceful degradation pattern
+func (s *Scanner) executeAnalyzers(
+    ctx context.Context,
+    analyzers []core.Analyzer,
+    repoCtx *core.RepositoryContext,
+) ([]*core.Finding, map[string]interface{}) {
+    findings := make([]*core.Finding, 0)
+    metrics := make(map[string]interface{})
+
+    for _, analyzer := range analyzers {
+        // Graceful degradation: analyzer failures don't stop the scan
+        result, err := s.tryAnalyze(ctx, analyzer, repoCtx)
+        if err != nil {
+            // Log error and create error finding, but continue
+            log.Errorf("Analyzer %s failed: %v", analyzer.Name(), err)
+            findings = append(findings, s.createErrorFinding(analyzer, err))
+            continue
+        }
+
+        // Collect findings and metrics
+        findings = append(findings, result.Findings...)
+        for key, value := range result.Metrics {
+            metrics[fmt.Sprintf("%s.%s", analyzer.Name(), key)] = value
+        }
+    }
+
+    return findings, metrics
+}
+
+// tryAnalyze wraps analyzer execution with timeout and panic recovery
+func (s *Scanner) tryAnalyze(
+    ctx context.Context,
+    analyzer core.Analyzer,
+    repoCtx *core.RepositoryContext,
+) (*core.AnalyzerResult, error) {
+    // Panic recovery
+    defer func() {
+        if r := recover(); r != nil {
+            log.Errorf("Analyzer %s panicked: %v", analyzer.Name(), r)
+        }
+    }()
+
+    // Apply timeout (5 minutes per analyzer by default)
+    timeout := s.config.AnalyzerTimeout
+    if timeout == 0 {
+        timeout = 5 * time.Minute
+    }
+
+    analyzerCtx, cancel := context.WithTimeout(ctx, timeout)
+    defer cancel()
+
+    // Execute analyzer
+    request := &core.AnalysisRequest{
+        Repository: repoCtx,
+        Options:    s.config.AnalysisOptions,
+    }
+
+    return analyzer.Analyze(analyzerCtx, request)
+}
+
+// createErrorFinding creates a finding for analyzer errors
+func (s *Scanner) createErrorFinding(analyzer core.Analyzer, err error) *core.Finding {
+    return &core.Finding{
+        ID:          fmt.Sprintf("error-%s-%d", analyzer.Name(), time.Now().Unix()),
+        CheckID:     analyzer.Name(),
+        Type:        core.FindingTypeQuality,
+        Severity:    core.SeverityInfo,
+        Status:      core.FindingStatusError,
+        Title:       fmt.Sprintf("Analyzer %s encountered an error", analyzer.Name()),
+        Description: fmt.Sprintf("The %s analyzer failed to complete: %v", analyzer.Name(), err),
+        Remediation: &core.Remediation{
+            Summary:     "Review analyzer error",
+            Description: "This analyzer encountered an unexpected error. This may indicate a bug or incompatibility.",
+            Steps: []string{
+                "Review the error message above",
+                "Check if your repository structure is compatible",
+                "Report to Ship Shape if the error persists",
+            },
+        },
+    }
+}
+
+// runAssessors executes all assessors for scoring
+func (s *Scanner) runAssessors(
+    ctx context.Context,
+    repoCtx *core.RepositoryContext,
+    findings []*core.Finding,
+    metrics map[string]interface{},
+) map[core.ScoreDimension]*core.DimensionScore {
+    assessors := s.registry.SelectAssessors(repoCtx)
+    scores := make(map[core.ScoreDimension]*core.DimensionScore)
+
+    // Create analysis results for assessors
+    analysisResults := &core.AnalysisResults{
+        RepositoryContext: repoCtx,
+        Findings:          findings,
+        Metrics:           metrics,
+    }
+
+    for _, assessor := range assessors {
+        score, err := assessor.Assess(ctx, analysisResults)
+        if err != nil {
+            log.Warnf("Assessor %s failed: %v", assessor.Name(), err)
+            continue
+        }
+        scores[assessor.Dimension()] = score
+    }
+
+    return scores
+}
+
+// buildAssessment creates the final assessment
+func (s *Scanner) buildAssessment(
+    repoCtx *core.RepositoryContext,
+    findings []*core.Finding,
+    scores map[core.ScoreDimension]*core.DimensionScore,
+    metrics map[string]interface{},
+) *Assessment {
+    // Calculate overall score from dimension scores
+    overallScore := 0.0
+    for _, dimScore := range scores {
+        overallScore += dimScore.Score * dimScore.Weight
+    }
+
+    return &Assessment{
+        RepositoryContext: repoCtx,
+        OverallScore:      overallScore,
+        DimensionScores:   scores,
+        Findings:          findings,
+        Metrics:           metrics,
+        Timestamp:         time.Now(),
+    }
+}
+
+// Assessment represents the complete analysis result
+type Assessment struct {
+    RepositoryContext *core.RepositoryContext
+    OverallScore      float64
+    DimensionScores   map[core.ScoreDimension]*core.DimensionScore
+    Findings          []*core.Finding
+    Metrics           map[string]interface{}
+    Timestamp         time.Time
+}
+
+// Config holds scanner configuration
+type Config struct {
+    AnalyzerTimeout  time.Duration
+    AnalysisOptions  *core.AnalysisOptions
+    EnableParallel   bool
+    MaxConcurrency   int
+}
+```
+
+### Benefits of Service Layer Pattern
+
+**From AgentReady's Proven Approach**:
+
+1. **Graceful Degradation**: Individual analyzer failures don't crash the entire scan
+2. **Clear Separation**: Business logic isolated from execution details
+3. **Easy Testing**: Scanner can be unit tested with mocked analyzers
+4. **Centralized Error Handling**: Consistent error recovery across all analyzers
+5. **Workflow Visibility**: Clear sequence of operations
+6. **Context Management**: Repository context threaded through entire workflow
+
+### Integration with Execution Engine
+
+The Service Layer coordinates high-level workflow while the Execution Engine handles low-level parallel execution:
+
+```
+Scanner (Service Layer)
+    ├─> Discovery Engine (repository context)
+    ├─> Registry (analyzer selection)
+    ├─> Execution Engine (parallel execution)
+    └─> Assessment Builder (result aggregation)
 ```
 
 ---

@@ -1343,6 +1343,109 @@ type JaCoCoReport struct {
 }
 ```
 
+**TR-040.4**: Enhanced Finding Model with Transparency (NEW - from AgentReady pattern)
+```go
+// Coverage parsing must return findings with transparent metrics
+func (cp *CoverageParser) CreateFinding(coverageData *CoverageData) *Finding {
+    // Determine status based on threshold
+    status := FindingStatusFail
+    if coverageData.LinePercentage >= 80.0 {
+        status = FindingStatusPass
+    }
+
+    return &Finding{
+        ID:            "coverage-line-coverage",
+        CheckID:       "coverage-parser",
+        Type:          FindingTypeCoverage,
+        Severity:      SeverityHigh,
+        Status:        status,  // NEW: Explicit pass/fail/skipped/error status
+        Title:         "Line Coverage Assessment",
+        Description:   "Line coverage measures percentage of code executed by tests",
+
+        // NEW: Transparency fields show measured vs threshold
+        MeasuredValue: fmt.Sprintf("%.1f%% line coverage", coverageData.LinePercentage),
+        Threshold:     "≥80% line coverage",
+
+        Evidence: []string{
+            fmt.Sprintf("%d/%d lines covered", coverageData.CoveredLines, coverageData.TotalLines),
+            fmt.Sprintf("%d files analyzed", len(coverageData.Files)),
+        },
+
+        // NEW: Enhanced remediation with ordered steps, tools, commands
+        Remediation: &Remediation{
+            Summary:     "Increase test coverage to meet threshold",
+            Description: "Add tests to cover untested code paths",
+            Steps: []string{
+                "Review uncovered files listed in coverage report",
+                "Identify critical paths without tests",
+                "Write unit tests for uncovered functions",
+                "Run coverage again to verify improvement",
+            },
+            Tools: []string{
+                "go test -coverprofile", // For Go
+                "coverage.py",           // For Python
+                "c8 or nyc",             // For JavaScript
+            },
+            Commands: []string{
+                "go test -coverprofile=coverage.out ./...",
+                "coverage run -m pytest && coverage report",
+                "npm test -- --coverage",
+            },
+            Effort: EffortMedium,
+            Examples: []string{
+                "func TestMyFunction(t *testing.T) { /* test implementation */ }",
+            },
+            Citations: []*Citation{
+                {
+                    Authors: []string{"Inozemtseva", "L.", "Holmes", "R."},
+                    Title:   "Coverage is Not Strongly Correlated with Test Suite Effectiveness",
+                    Publication: "ICSE 2014",
+                    Year:    2014,
+                    DOI:     "10.1145/2568225.2568271",
+                    Summary: "While coverage ≥80% is industry standard, focus on quality over quantity",
+                },
+            },
+        },
+
+        Confidence: 1.0, // Coverage parsing is deterministic
+    }
+}
+```
+
+**TR-040.5**: Graceful Degradation (NEW - from AgentReady pattern)
+```go
+// Coverage parsing errors should return FindingStatusError, not panic
+func (cp *CoverageParser) Parse(filePath string) (*CoverageData, error) {
+    data, err := os.ReadFile(filePath)
+    if err != nil {
+        // Return error finding, not nil
+        return nil, &Finding{
+            Status:      FindingStatusError,
+            Title:       "Coverage file not found",
+            Description: fmt.Sprintf("Could not read coverage file: %v", err),
+            Remediation: &Remediation{
+                Summary: "Generate coverage file",
+                Steps: []string{
+                    "Run tests with coverage enabled",
+                    "Verify coverage file exists at expected path",
+                },
+            },
+        }
+    }
+
+    // Parse data...
+    if parseErr != nil {
+        return nil, &Finding{
+            Status:      FindingStatusError,
+            Title:       "Coverage file parse error",
+            Description: fmt.Sprintf("Malformed coverage file: %v", parseErr),
+        }
+    }
+
+    return coverageData, nil
+}
+```
+
 #### Open Source Tools
 - **encoding/xml**: Go standard library
 - **encoding/json**: Go standard library
