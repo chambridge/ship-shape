@@ -1,0 +1,316 @@
+# Ship Shape Ground Truth Metadata Schema
+# Version: 1.0.0
+# This schema defines the structure for metadata.yml files in ground truth examples
+
+# Required fields
+version:
+  type: string
+  required: true
+  description: "Schema version (semantic versioning)"
+  example: "1.0.0"
+
+language:
+  type: string
+  required: true
+  description: "Programming language of the example"
+  enum: [go, python, javascript, typescript, java, rust, csharp]
+  example: "go"
+
+category:
+  type: string
+  required: true
+  description: "Category of ground truth example"
+  enum: [test-smell, coverage-report, test-pattern, integration]
+  example: "test-smell"
+
+description:
+  type: string
+  required: true
+  description: "Brief description of what this example demonstrates"
+  example: "Test function testing multiple unrelated concerns"
+
+verified_by:
+  type: array
+  required: true
+  description: "Email addresses of engineers who verified this example"
+  min_items: 2
+  items:
+    type: string
+    format: email
+  example:
+    - "alice@example.com"
+    - "bob@example.com"
+
+verified_date:
+  type: string
+  required: true
+  description: "Date when example was last verified"
+  format: date
+  example: "2026-01-28"
+
+# Category-specific required fields
+
+# For category: test-smell
+smell_type:
+  type: string
+  required_when: category == "test-smell"
+  description: "Type of test smell demonstrated"
+  enum:
+    - mystery-guest
+    - eager-test
+    - lazy-test
+    - obscure-test
+    - conditional-logic
+    - general-fixture
+    - code-duplication
+    - assertion-roulette
+    - sensitive-equality
+    - resource-optimism
+    - flakiness
+  example: "eager-test"
+
+# For category: coverage-report
+coverage_format:
+  type: string
+  required_when: category == "coverage-report"
+  description: "Format of coverage report"
+  enum: [go-cover, cobertura-xml, lcov, istanbul-json, jacoco-xml]
+  example: "go-cover"
+
+# For category: test-pattern
+pattern_type:
+  type: string
+  required_when: category == "test-pattern"
+  description: "Type of test pattern demonstrated"
+  enum:
+    - table-driven
+    - subtests
+    - fixtures
+    - mocking
+    - parametrized
+    - benchmark
+    - property-based
+    - integration
+    - e2e
+  example: "table-driven"
+
+# Expected detections (for test-smell and some test-pattern categories)
+expected_detections:
+  type: array
+  required_when: category in ["test-smell", "test-pattern"]
+  description: "What Ship Shape should detect in this example"
+  items:
+    type: object
+    required_fields: [type, file]
+    fields:
+      type:
+        type: string
+        required: true
+        description: "Type of finding"
+        enum: [test-smell, pattern, best-practice, anti-pattern]
+
+      smell:
+        type: string
+        required_when: type == "test-smell"
+        description: "Specific smell type"
+
+      pattern:
+        type: string
+        required_when: type in ["pattern", "best-practice", "anti-pattern"]
+        description: "Specific pattern name"
+
+      file:
+        type: string
+        required: true
+        description: "File where detection should occur"
+
+      line:
+        type: integer
+        required: false
+        description: "Specific line number (optional)"
+
+      function:
+        type: string
+        required: false
+        description: "Function/test name where detection occurs"
+
+      severity:
+        type: string
+        required: false
+        default: "medium"
+        enum: [low, medium, high, critical]
+
+      reason:
+        type: string
+        required: true
+        description: "Human-readable explanation of why this should be detected"
+
+      confidence:
+        type: string
+        required: false
+        default: "high"
+        enum: [low, medium, high]
+        description: "Expected confidence level of detection"
+
+# Expected coverage metrics (for coverage-report category)
+expected_coverage:
+  type: object
+  required_when: category == "coverage-report"
+  description: "Expected parsed coverage metrics"
+  fields:
+    line_coverage:
+      type: number
+      format: percentage
+      example: 85.5
+
+    branch_coverage:
+      type: number
+      format: percentage
+      example: 78.3
+
+    function_coverage:
+      type: number
+      format: percentage
+      example: 92.0
+
+    files_covered:
+      type: integer
+      example: 42
+
+    lines_total:
+      type: integer
+      example: 1250
+
+    lines_covered:
+      type: integer
+      example: 1069
+
+# False positives that are expected/acceptable
+false_positives_expected:
+  type: array
+  required: false
+  description: "Known false positives that are acceptable for this example"
+  items:
+    type: object
+    fields:
+      type:
+        type: string
+        required: true
+      reason:
+        type: string
+        required: true
+      accepted_by:
+        type: string
+        required: true
+
+# Additional test requirements
+test_requirements:
+  type: object
+  required: false
+  description: "Special requirements for testing this example"
+  fields:
+    min_go_version:
+      type: string
+      example: "1.21"
+
+    dependencies:
+      type: array
+      items:
+        type: string
+      example: ["github.com/stretchr/testify"]
+
+    environment_variables:
+      type: object
+      example:
+        TEST_MODE: "validation"
+
+    requires_network:
+      type: boolean
+      default: false
+
+    requires_filesystem:
+      type: boolean
+      default: true
+
+# Related examples
+related_examples:
+  type: array
+  required: false
+  description: "Paths to related examples"
+  items:
+    type: string
+  example:
+    - "../lazy-test/go/example1"
+    - "../code-duplication/go/example2"
+
+# Additional notes
+notes:
+  type: string
+  required: false
+  description: "Additional context, rationale, or implementation notes"
+  example: |
+    This is a classic eager test that could be split into:
+    - TestUserCreation
+    - TestUserValidation
+    - TestEmailNotification
+
+# Tags for categorization and search
+tags:
+  type: array
+  required: false
+  description: "Tags for categorization and search"
+  items:
+    type: string
+  example: ["http", "database", "external-dependency"]
+
+# Change history
+changelog:
+  type: array
+  required: false
+  description: "History of changes to this example"
+  items:
+    type: object
+    fields:
+      date:
+        type: string
+        format: date
+      author:
+        type: string
+        format: email
+      change:
+        type: string
+  example:
+    - date: "2026-01-28"
+      author: "alice@example.com"
+      change: "Initial creation"
+
+# Example complete metadata.yml file:
+#
+# version: "1.0.0"
+# language: go
+# category: test-smell
+# smell_type: eager-test
+# description: "Test function testing multiple unrelated concerns"
+# verified_by:
+#   - "alice@example.com"
+#   - "bob@example.com"
+# verified_date: "2026-01-28"
+# expected_detections:
+#   - type: test-smell
+#     smell: eager-test
+#     file: "user_test.go"
+#     function: "TestUserRegistration"
+#     severity: medium
+#     reason: "Tests user creation, validation, email sending, and database cleanup in one test"
+#     confidence: high
+# false_positives_expected: []
+# test_requirements:
+#   min_go_version: "1.21"
+#   requires_filesystem: false
+# tags: ["http", "database", "validation"]
+# notes: |
+#   This is a classic eager test that could be split into:
+#   - TestUserCreation
+#   - TestUserValidation
+#   - TestEmailNotification
+#   - TestDatabaseCleanup
