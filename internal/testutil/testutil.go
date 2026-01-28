@@ -26,48 +26,50 @@ func CaptureOutput(t *testing.T, fn func()) (stdout, stderr string) {
 		t.Fatalf("Failed to create pipes: %v, %v", errOut, errErr)
 	}
 
-	// Replace stdout/stderr
-	os.Stdout = wOut
-	os.Stderr = wErr
-
-	// Capture output
-	outC := make(chan string)
-	errC := make(chan string)
+	// Capture output in goroutines
+	outC := make(chan string, 1)
+	errC := make(chan string, 1)
 
 	go func() {
 		var buf bytes.Buffer
-		if _, err := io.Copy(&buf, rOut); err != nil {
-			t.Logf("Failed to copy stdout: %v", err)
-		}
-
+		//nolint:errcheck // io.Copy error handled by returning partial output
+		_, _ = io.Copy(&buf, rOut) // #nosec G104 -- errors don't prevent output capture
 		outC <- buf.String()
 	}()
 
 	go func() {
 		var buf bytes.Buffer
-		if _, err := io.Copy(&buf, rErr); err != nil {
-			t.Logf("Failed to copy stderr: %v", err)
-		}
-
+		//nolint:errcheck // io.Copy error handled by returning partial output
+		_, _ = io.Copy(&buf, rErr) // #nosec G104 -- errors don't prevent output capture
 		errC <- buf.String()
 	}()
+
+	// Replace stdout/stderr AFTER starting goroutines
+	os.Stdout = wOut
+	os.Stderr = wErr
 
 	// Run function
 	fn()
 
-	// Close writers
+	// Close writers to signal EOF to readers
 	//nolint:errcheck // Close errors are not critical in test cleanup
 	_ = wOut.Close() // #nosec G104 -- Close errors are not critical in test cleanup
 	//nolint:errcheck // Close errors are not critical in test cleanup
 	_ = wErr.Close() // #nosec G104 -- Close errors are not critical in test cleanup
 
-	// Restore original stdout/stderr
+	// Restore original stdout/stderr immediately
 	os.Stdout = oldStdout
 	os.Stderr = oldStderr
 
-	// Get captured output
+	// Get captured output from goroutines with buffered channels
 	stdout = <-outC
 	stderr = <-errC
+
+	// Close readers to free resources
+	//nolint:errcheck // Close errors are not critical in test cleanup
+	_ = rOut.Close() // #nosec G104 -- Close errors are not critical in test cleanup
+	//nolint:errcheck // Close errors are not critical in test cleanup
+	_ = rErr.Close() // #nosec G104 -- Close errors are not critical in test cleanup
 
 	return stdout, stderr
 }

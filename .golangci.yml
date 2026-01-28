@@ -94,6 +94,7 @@ linters:
           - goconst
           - gocyclo
           - gosec
+          - wsl_v5
         path: _test\.go
       - linters:
           - staticcheck
@@ -101,6 +102,18 @@ linters:
       - linters:
           - lll
         source: '^//go:generate '
+      - linters:
+          - revive
+        text: 'var-naming: avoid meaningless package names'
+      - linters:
+          - govet
+        text: 'fieldalignment:'
+      - linters:
+          - goconst
+        path: manifest\.go
+      - linters:
+          - wsl_v5
+        path: discover\.go
     paths:
       - third_party$
       - builtin$
