@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/chambridge/ship-shape/internal/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -43,7 +44,7 @@ func Execute() error {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initConfig, initLogger)
 
 	// Global flags
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default: .shipshape.yml)")
@@ -86,21 +87,17 @@ func initConfig() {
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; using defaults
-			if verbose {
-				fmt.Fprintf(os.Stderr, "No config file found, using defaults\n")
-			}
+			logger.Debug("No config file found, using defaults")
 
 			return
 		}
 
 		// Config file found but another error occurred
-		fmt.Fprintf(os.Stderr, "Error reading config file: %v\n", err)
+		logger.Error("Error reading config file", "error", err)
 		os.Exit(1)
 	}
 
-	if verbose {
-		fmt.Fprintf(os.Stderr, "Using config file: %s\n", viper.ConfigFileUsed())
-	}
+	logger.Debug("Using config file", "path", viper.ConfigFileUsed())
 }
 
 // findRepositoryRoot searches for the repository root by looking for .git directory
@@ -125,4 +122,38 @@ func findRepositoryRoot() string {
 	}
 
 	return "."
+}
+
+// initLogger initializes the logger based on CLI flags.
+func initLogger() {
+	// Determine log level based on flags
+	var level logger.Level
+
+	switch {
+	case quiet:
+		level = logger.LevelError
+	case verbose:
+		level = logger.LevelDebug
+	default:
+		level = logger.LevelInfo
+	}
+
+	// Create logger configuration
+	cfg := logger.Config{
+		Level:   level,
+		Format:  "text",
+		Output:  os.Stderr,
+		NoColor: noColor,
+	}
+
+	// Initialize and set as default
+	l := logger.New(cfg)
+	logger.SetDefault(l)
+
+	// Log initialization message at debug level
+	logger.Debug("Logger initialized",
+		"level", level,
+		"format", cfg.Format,
+		"no_color", noColor,
+	)
 }
