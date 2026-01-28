@@ -2,9 +2,13 @@
 
 **A comprehensive testing quality and code analysis platform for multi-language repositories**
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI Pipeline](https://github.com/chambridge/ship-shape/actions/workflows/ci.yml/badge.svg)](https://github.com/chambridge/ship-shape/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/chambridge/ship-shape)](https://goreportcard.com/report/github.com/chambridge/ship-shape)
+[![codecov](https://codecov.io/gh/chambridge/ship-shape/branch/main/graph/badge.svg)](https://codecov.io/gh/chambridge/ship-shape)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/go-1.21+-00ADD8.svg)](https://go.dev/)
-[![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)](https://github.com/yourusername/ship-shape)
+[![Release](https://img.shields.io/github/v/release/chambridge/ship-shape)](https://github.com/chambridge/ship-shape/releases)
+[![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)](https://github.com/chambridge/ship-shape)
 
 ---
 
