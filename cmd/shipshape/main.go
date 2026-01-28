@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Ship Shape Contributors
 // Licensed under Apache License 2.0
 
+// Package main provides the CLI entry point for Ship Shape.
 package main
 
 import (

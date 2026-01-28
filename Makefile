@@ -1,7 +1,7 @@
 # Ship Shape - Makefile
 # Build, test, and development automation
 
-.PHONY: help build test lint fmt vet coverage clean install run
+.PHONY: help build test lint fmt vet coverage clean install run security actionlint
 
 # Binary name
 BINARY_NAME=shipshape
@@ -43,6 +43,8 @@ help:
 	@echo "  make run        - Build and run (usage: make run ARGS='analyze .')"
 	@echo "  make deps       - Download and verify dependencies"
 	@echo "  make tidy       - Tidy and verify module dependencies"
+	@echo "  make security   - Run gosec security scanner"
+	@echo "  make actionlint - Validate GitHub Actions workflows"
 	@echo "  make check      - Run all quality checks (fmt, vet, lint, test)"
 	@echo ""
 
@@ -115,6 +117,20 @@ tidy:
 	$(GOMOD) tidy
 	$(GOMOD) verify
 	@echo "Module tidy completed"
+
+## security: Run gosec security scanner
+security:
+	@echo "Running gosec security scanner..."
+	@which gosec > /dev/null || (echo "gosec not installed. Install: go install github.com/securego/gosec/v2/cmd/gosec@latest" && exit 1)
+	gosec ./...
+	@echo "Security scan completed"
+
+## actionlint: Validate GitHub Actions workflows
+actionlint:
+	@echo "Validating GitHub Actions workflows..."
+	@which actionlint > /dev/null || (echo "actionlint not installed. Install: go install github.com/rhysd/actionlint/cmd/actionlint@latest" && exit 1)
+	actionlint
+	@echo "Workflow validation completed"
 
 ## check: Run all quality checks (fmt, vet, lint, test)
 check: fmt vet lint test

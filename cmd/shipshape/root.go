@@ -52,9 +52,12 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "disable colored output")
 
 	// Bind flags to viper
-	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
-	viper.BindPFlag("quiet", rootCmd.PersistentFlags().Lookup("quiet"))
-	viper.BindPFlag("no-color", rootCmd.PersistentFlags().Lookup("no-color"))
+	// nolint:errcheck // BindPFlag always succeeds for valid flags
+	_ = viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	// nolint:errcheck
+	_ = viper.BindPFlag("quiet", rootCmd.PersistentFlags().Lookup("quiet"))
+	// nolint:errcheck
+	_ = viper.BindPFlag("no-color", rootCmd.PersistentFlags().Lookup("no-color"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -79,18 +82,23 @@ func initConfig() {
 	viper.AutomaticEnv()
 
 	// Read config file
-	if err := viper.ReadInConfig(); err != nil {
+	err := viper.ReadInConfig()
+	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; using defaults
 			if verbose {
 				fmt.Fprintf(os.Stderr, "No config file found, using defaults\n")
 			}
-		} else {
-			// Config file found but another error occurred
-			fmt.Fprintf(os.Stderr, "Error reading config file: %v\n", err)
-			os.Exit(1)
+
+			return
 		}
-	} else if verbose {
+
+		// Config file found but another error occurred
+		fmt.Fprintf(os.Stderr, "Error reading config file: %v\n", err)
+		os.Exit(1)
+	}
+
+	if verbose {
 		fmt.Fprintf(os.Stderr, "Using config file: %s\n", viper.ConfigFileUsed())
 	}
 }
@@ -112,6 +120,7 @@ func findRepositoryRoot() string {
 			// Reached filesystem root
 			break
 		}
+
 		dir = parent
 	}
 

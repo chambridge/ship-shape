@@ -213,34 +213,48 @@ jobs:
 
 ## Development Roadmap
 
-### Phase 1: Foundation (Q1 2026)
+### Phase 0: Foundation & Setup
 - [x] Requirements specification
 - [x] Technical architecture design
 - [x] User stories and acceptance criteria
-- [ ] Core type system and interfaces
+- [x] Go module initialization
+- [x] CLI framework (Cobra)
+- [x] Configuration system (Viper)
+- [x] CI/CD pipeline (GitHub Actions)
+- [x] Development documentation
+- [ ] Logging framework
+- [ ] Test infrastructure
 - [ ] Repository discovery engine
-- [ ] Language detection (Go, Python, JavaScript)
+- [ ] Ground truth datasets
 
-### Phase 2: Multi-Language Support (Q1-Q2 2026)
+### Phase 1: Technical Spike Validation
+- [ ] AST parsing framework
+- [ ] Monorepo analysis coordination
+- [ ] Test smell detection
+- [ ] Coverage parsing
+- [ ] GitHub Actions integration
+- [ ] HTML report generation
+
+### Phase 2: Multi-Language Support
 - [ ] Go test analysis with AST parsing
 - [ ] Python test analysis (pytest/unittest)
 - [ ] JavaScript/TypeScript analysis (Jest/Vitest)
 - [ ] Monorepo detection and handling
 - [ ] Package-level analysis
 
-### Phase 3: Quality Analysis (Q2 2026)
+### Phase 3: Quality Analysis
 - [ ] Test smell detection framework
 - [ ] Coverage report parsing (all languages)
 - [ ] Coverage quality assessment
 - [ ] Tool database and detection
 
-### Phase 4: Integration & Reporting (Q3 2026)
+### Phase 4: Integration & Reporting
 - [ ] GitHub Actions integration
 - [ ] Quality gates system
 - [ ] HTML report generation
 - [ ] Pre-commit hooks
 
-### Phase 5: Advanced Features (Q3-Q4 2026)
+### Phase 5: Advanced Features
 - [ ] Historical tracking and trends
 - [ ] SQLite storage implementation
 - [ ] Organization-wide analysis
@@ -250,33 +264,39 @@ jobs:
 
 ## Contributing
 
-> Contributions are welcome once development begins in Q1 2026.
+Contributions are welcome! Ship Shape is currently in active development.
 
-### Development Setup (Future)
+### Development Setup
 
 ```bash
 # Clone repository
-git clone https://github.com/shipshape/ship-shape.git
+git clone https://github.com/chambridge/ship-shape.git
 cd ship-shape
 
 # Install dependencies
 go mod download
 
-# Run tests
-make test
-
 # Build
 make build
 
 # Run locally
-./bin/shipshape analyze .
+./bin/shipshape version
+
+# Run all quality checks
+make check
+
+# See all available commands
+make help
 ```
 
 ### Development Standards
 - **Test-Driven Development**: >90% unit test coverage required
 - **Conventional Commits**: All commits follow conventional commit format
-- **DCO Sign-off**: All commits must be signed off
-- **Code Quality**: Must pass `make lint`, `make fmt`, `make vet`
+- **DCO Sign-off**: All commits must be signed off (`git commit -s`)
+- **Code Quality**: Must pass `make check` (runs fmt, vet, lint, test)
+- **Workflow Validation**: Run `make actionlint` before pushing workflow changes
+
+See [docs/v1.0.0/cicd.md](docs/v1.0.0/cicd.md) for detailed CI/CD documentation.
 
 ---
 
@@ -301,28 +321,39 @@ See [.research/shipshape.md](.research/shipshape.md) for complete research analy
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/shipshape/ship-shape/issues) (Future)
-- **Discussions**: [GitHub Discussions](https://github.com/shipshape/ship-shape/discussions) (Future)
-- **Documentation**: [docs/](docs/) (Future)
+- **Issues**: [GitHub Issues](https://github.com/chambridge/ship-shape/issues)
+- **Documentation**: [docs/v1.0.0/](docs/v1.0.0/)
+- **Planning**: [.project/](.project/) - Requirements, architecture, user stories, roadmap
 
 ---
 
 ## Project Status
 
-**Current Phase**: Planning & Design ✅
+**Current Phase**: Phase 0 - Foundation & Setup 🚧
 
 **Completed**:
 - ✅ Requirements specification (2,300+ lines)
 - ✅ Technical architecture (3,400+ lines with Go examples)
-- ✅ User stories with acceptance criteria (27 stories)
+- ✅ User stories with acceptance criteria (27 stories, 180 story points)
 - ✅ Research analysis (98KB)
-- ✅ Project documentation structure
+- ✅ 24-week implementation roadmap
+- ✅ Go module and project structure
+- ✅ CLI framework with Cobra
+- ✅ Configuration system with Viper
+- ✅ Comprehensive CI/CD pipeline
+- ✅ Quality tooling (golangci-lint, actionlint, gosec)
+- ✅ Development documentation (CLAUDE.md, CI/CD docs)
+
+**In Progress**:
+- 🚧 Logging framework
+- 🚧 Test infrastructure
+- 🚧 Ground truth dataset structure
 
 **Next Steps**:
-1. Core type system implementation
-2. Repository discovery engine
+1. Complete Phase 0 foundation tasks
+2. Repository discovery engine implementation
 3. Language detection framework
-4. Test planning and validation strategy
+4. Begin technical spike validation
 
 ---
 

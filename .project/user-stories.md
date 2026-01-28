@@ -1,9 +1,29 @@
 # Ship Shape - User Stories with Acceptance Criteria
 
 **Version**: 1.0.0
-**Date**: 2026-01-27
-**Status**: Draft
+**Last Updated**: 2026-01-28
+**Status**: Active Development
 **Author**: Senior Software Engineer
+
+---
+
+## Status Tracking
+
+Each user story includes the following status fields:
+
+- **Status**: Not Started | In Progress | Completed
+- **Completed**: Date when story was completed (YYYY-MM-DD)
+- **Priority**: P0 (Critical) | P1 (High) | P2 (Medium) | P3 (Low)
+- **Story Points**: Effort estimate (1, 2, 3, 5, 8, 13, 21)
+- **Dependencies**: Other stories that must be completed first
+
+### Status Legend
+
+| Status | Description |
+|--------|-------------|
+| Not Started | Story has not begun implementation |
+| In Progress | Story is actively being worked on |
+| Completed | Story acceptance criteria met, tests passing |
 
 ---
 
@@ -3094,7 +3114,11 @@ templ OrganizationDashboard(orgReport *OrganizationReport) {
 #### SS-120: Ground Truth Dataset Management
 **Story**: As a Ship Shape developer, I want to maintain curated ground truth datasets so that I can validate detector accuracy.
 
+**Status**: In Progress
+**Priority**: P0 (Critical)
 **Story Points**: 8
+**Dependencies**: None
+**Progress**: Directory structure created (`testdata/ground-truth/`, `testdata/integration/`, `testdata/validation/`), but datasets not yet populated.
 
 **Acceptance Criteria**:
 - [ ] Ground truth dataset structure created in `testdata/ground-truth/`

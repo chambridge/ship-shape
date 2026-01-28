@@ -1,139 +1,121 @@
-# golangci-lint configuration for Ship Shape
-# Documentation: https://golangci-lint.run/usage/configuration/
-
+version: "2"
 run:
-  timeout: 5m
-  tests: true
   modules-download-mode: readonly
-
+  tests: true
 linters:
   enable:
-    # Default linters
-    - errcheck      # Check for unchecked errors
-    - gosimple      # Simplify code
-    - govet         # Vet examines Go source code
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Static analysis
-    - unused        # Find unused code
-
-    # Additional recommended linters
-    - gofmt         # Check formatting
-    - goimports     # Check import formatting
-    - misspell      # Find misspelled words
-    - revive        # Fast, configurable linter
-    - unconvert     # Remove unnecessary type conversions
-    - unparam       # Find unused function parameters
-    - gosec         # Security checks
-    - bodyclose     # Check HTTP response body is closed
-    - noctx         # Find HTTP requests without context
-    - stylecheck    # Style checks
-    - exportloopref # Check for pointer loop variable references
-    - gocyclo       # Cyclomatic complexity
-    - dupl          # Code duplication
-    - goconst       # Find repeated strings that could be constants
-    - gocritic      # Comprehensive Go linter
-    - gocognit      # Cognitive complexity
-    - nestif        # Nested if statements
-    - whitespace    # Whitespace checks
-    - wsl           # Whitespace linter
-
+    - bodyclose
+    - copyloopvar
+    - dupl
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gosec
+    - misspell
+    - nestif
+    - noctx
+    - revive
+    - staticcheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl_v5
   disable:
-    - exhaustive    # Too strict for most cases
-    - exhaustruct   # Too strict for most cases
-    - nlreturn      # Too opinionated
-    - lll           # Line length - handled by gofmt
-    - wrapcheck     # Too strict for most cases
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-
-  govet:
-    enable-all: true
-    disable:
-      - shadow  # Too many false positives
-
-  gocyclo:
-    min-complexity: 15
-
-  gocognit:
-    min-complexity: 20
-
-  dupl:
-    threshold: 100
-
-  goconst:
-    min-len: 3
-    min-occurrences: 3
-
-  misspell:
-    locale: US
-
-  revive:
-    confidence: 0.8
+    - exhaustive
+    - exhaustruct
+    - lll
+    - nlreturn
+    - wrapcheck
+  settings:
+    dupl:
+      threshold: 100
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    gocognit:
+      min-complexity: 20
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    gocyclo:
+      min-complexity: 15
+    gosec:
+      excludes:
+        - G104
+      severity: medium
+      confidence: medium
+    govet:
+      disable:
+        - shadow
+      enable-all: true
+    misspell:
+      locale: US
+    nestif:
+      min-complexity: 4
+    revive:
+      confidence: 0.8
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+        - name: if-return
+        - name: increment-decrement
+        - name: var-naming
+        - name: var-declaration
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: redefines-builtin-id
+    staticcheck:
+      checks:
+        - all
+        - -ST1000
+        - -ST1003
+  exclusions:
+    generated: lax
     rules:
-      - name: blank-imports
-      - name: context-as-argument
-      - name: context-keys-type
-      - name: dot-imports
-      - name: error-return
-      - name: error-strings
-      - name: error-naming
-      - name: exported
-      - name: if-return
-      - name: increment-decrement
-      - name: var-naming
-      - name: var-declaration
-      - name: package-comments
-      - name: range
-      - name: receiver-naming
-      - name: time-naming
-      - name: unexported-return
-      - name: indent-error-flow
-      - name: errorf
-      - name: empty-block
-      - name: superfluous-else
-      - name: unused-parameter
-      - name: unreachable-code
-      - name: redefines-builtin-id
-
-  gosec:
-    severity: medium
-    confidence: medium
-    excludes:
-      - G104  # Audit errors not checked (covered by errcheck)
-
-  stylecheck:
-    checks: ["all", "-ST1000", "-ST1003"]
-
-  nestif:
-    min-complexity: 4
-
+      - linters:
+          - dupl
+          - errcheck
+          - goconst
+          - gocyclo
+          - gosec
+        path: _test\.go
+      - linters:
+          - staticcheck
+        text: 'SA9003:'
+      - linters:
+          - lll
+        source: '^//go:generate '
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-
-  exclude-rules:
-    # Exclude some linters from running on tests files
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - errcheck
-        - dupl
-        - gosec
-        - goconst
-
-    # Exclude some staticcheck messages
-    - linters:
-        - staticcheck
-      text: "SA9003:"
-
-    # Exclude lll issues for long lines with go:generate
-    - linters:
-        - lll
-      source: "^//go:generate "
-
-  # Show all issues
   new: false
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

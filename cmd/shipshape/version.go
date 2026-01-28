@@ -50,7 +50,7 @@ type versionInfo struct {
 	Platform  string `json:"platform"`
 }
 
-func runVersion(cmd *cobra.Command, args []string) error {
+func runVersion(_ *cobra.Command, _ []string) error {
 	info := versionInfo{
 		Version:   Version,
 		BuildTime: BuildTime,
@@ -69,7 +69,9 @@ func runVersion(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to marshal version info: %w", err)
 		}
+
 		fmt.Println(string(data))
+
 		return nil
 	}
 
