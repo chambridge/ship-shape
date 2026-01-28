@@ -223,7 +223,7 @@ jobs:
 - [x] CI/CD pipeline (GitHub Actions)
 - [x] Development documentation
 - [x] Logging framework (slog-based, 96.4% coverage)
-- [ ] Test infrastructure
+- [x] Test infrastructure (testutil package, 82.1% overall coverage)
 - [ ] Repository discovery engine
 - [ ] Ground truth datasets
 
@@ -344,9 +344,9 @@ See [.research/shipshape.md](.research/shipshape.md) for complete research analy
 - ✅ Quality tooling (golangci-lint, actionlint, gosec)
 - ✅ Development documentation (CLAUDE.md, CI/CD docs)
 - ✅ Logging framework (slog-based, structured logging, 96.4% coverage)
+- ✅ Test infrastructure (testutil package, version command tests, 82.1% overall coverage)
 
 **In Progress**:
-- 🚧 Test infrastructure
 - 🚧 Ground truth dataset structure
 
 **Next Steps**:
