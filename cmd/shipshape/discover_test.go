@@ -51,9 +51,9 @@ func TestDiscoverCommand(t *testing.T) {
 
 		// Create a fresh command instance for this test to avoid initialization hooks
 		testCmd := &cobra.Command{
-			Use:   "discover [directory]",
-			Args:  cobra.MaximumNArgs(1),
-			RunE:  runDiscover,
+			Use:  "discover [directory]",
+			Args: cobra.MaximumNArgs(1),
+			RunE: runDiscover,
 		}
 		testCmd.Flags().BoolVar(&discoverJSON, "json", false, "output in JSON format")
 		testCmd.SetArgs([]string{dir})
