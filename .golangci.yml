@@ -111,6 +111,9 @@ linters:
       - linters:
           - goconst
         path: manifest\.go
+      - linters:
+          - wsl_v5
+        path: discover\.go
     paths:
       - third_party$
       - builtin$
