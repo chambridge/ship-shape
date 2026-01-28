@@ -59,6 +59,66 @@ make deps
 make tidy
 ```
 
+### Logging
+
+Ship Shape uses structured logging with `log/slog` (Go 1.21+) through the `internal/logger` package. Logging is controlled by CLI flags and provides consistent, leveled output.
+
+**Usage in Code**:
+```go
+import "github.com/chambridge/ship-shape/internal/logger"
+
+// Package-level convenience functions
+logger.Debug("detailed diagnostic information", "key", value)
+logger.Info("general informational messages", "key", value)
+logger.Warn("warning messages for recoverable issues", "key", value)
+logger.Error("error messages", "error", err, "context", "additional info")
+
+// Context-aware logging
+logger.InfoContext(ctx, "operation completed", "duration", time.Since(start))
+
+// Logger with attributes
+log := logger.With("component", "analyzer", "language", "go")
+log.Info("starting analysis")  // All logs will include component and language fields
+
+// Logger with groups
+log := logger.WithGroup("request")
+log.Info("API call", "method", "GET", "path", "/api/v1")  // Groups method and path under "request"
+```
+
+**CLI Flags**:
+```bash
+# Default (INFO level)
+./bin/shipshape version
+
+# Verbose mode (DEBUG level)
+./bin/shipshape version --verbose
+./bin/shipshape version -v
+
+# Quiet mode (ERROR level only)
+./bin/shipshape version --quiet
+./bin/shipshape version -q
+
+# Disable colored output
+./bin/shipshape version --no-color
+```
+
+**Configuration**:
+- Logs go to `stderr` by default
+- Text format for human readability
+- JSON format available for machine parsing (future enhancement)
+- Structured key-value pairs for rich context
+- Thread-safe and race-condition free
+
+**Important Development Guidelines**:
+- **ALWAYS use make targets** instead of invoking tools directly (e.g., `make test` not `go test`, `make lint` not `golangci-lint`)
+- Keep make targets up-to-date when adding new development workflows
+- Use logger functions instead of `fmt.Printf` for all diagnostic output
+- Use `logger.Debug` for development/troubleshooting messages
+- Use `logger.Info` for normal operation messages
+- Use `logger.Warn` for recoverable issues
+- Use `logger.Error` for errors (but still return errors to callers)
+- Always include relevant context as key-value pairs
+
 **Quality Standards (Enforced by CI)**:
 - Go 1.21+ required (tested on 1.21, 1.22, 1.23)
 - >90% unit test coverage target
