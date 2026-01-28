@@ -7,6 +7,7 @@ import (
 	"github.com/chambridge/ship-shape/internal/testutil"
 )
 
+//nolint:gocognit // Table-driven tests can be complex but are still readable
 func TestWalker_Walk(t *testing.T) {
 	// Create temp directory with test structure
 	dir := testutil.TempDir(t)

@@ -70,13 +70,14 @@ type Framework struct {
 // FrameworkType categorizes different types of frameworks and tools.
 type FrameworkType string
 
+// Framework type constants define categories of development tools and frameworks.
 const (
-	FrameworkTypeTest     FrameworkType = "test"
-	FrameworkTypeBuild    FrameworkType = "build"
-	FrameworkTypeLint     FrameworkType = "lint"
-	FrameworkTypeFormat   FrameworkType = "format"
-	FrameworkTypeCoverage FrameworkType = "coverage"
-	FrameworkTypeOther    FrameworkType = "other"
+	FrameworkTypeTest     FrameworkType = "test"     // Test frameworks and runners
+	FrameworkTypeBuild    FrameworkType = "build"    // Build tools and task runners
+	FrameworkTypeLint     FrameworkType = "lint"     // Code linters and static analyzers
+	FrameworkTypeFormat   FrameworkType = "format"   // Code formatters
+	FrameworkTypeCoverage FrameworkType = "coverage" // Coverage reporting tools
+	FrameworkTypeOther    FrameworkType = "other"    // Other development tools
 )
 
 // Workspace represents a package or workspace in a monorepo.
@@ -97,14 +98,15 @@ type Workspace struct {
 // WorkspaceType identifies the workspace management system.
 type WorkspaceType string
 
+// Workspace type constants define different monorepo management systems.
 const (
-	WorkspaceTypeNpm    WorkspaceType = "npm"
-	WorkspaceTypeYarn   WorkspaceType = "yarn"
-	WorkspaceTypePnpm   WorkspaceType = "pnpm"
-	WorkspaceTypeGo     WorkspaceType = "go"
-	WorkspaceTypeMaven  WorkspaceType = "maven"
-	WorkspaceTypeGradle WorkspaceType = "gradle"
-	WorkspaceTypeLerna  WorkspaceType = "lerna"
+	WorkspaceTypeNpm    WorkspaceType = "npm"    // npm workspaces
+	WorkspaceTypeYarn   WorkspaceType = "yarn"   // Yarn workspaces
+	WorkspaceTypePnpm   WorkspaceType = "pnpm"   // pnpm workspaces
+	WorkspaceTypeGo     WorkspaceType = "go"     // Go workspaces (go.work)
+	WorkspaceTypeMaven  WorkspaceType = "maven"  // Maven multi-module
+	WorkspaceTypeGradle WorkspaceType = "gradle" // Gradle multi-project
+	WorkspaceTypeLerna  WorkspaceType = "lerna"  // Lerna monorepo
 )
 
 // PrimaryLanguage returns the primary language (highest percentage) in the repository.
@@ -155,6 +157,7 @@ func (r *Repository) HasFramework(name string) bool {
 // GetFrameworksByType returns all frameworks of a specific type.
 func (r *Repository) GetFrameworksByType(ftype FrameworkType) []Framework {
 	var frameworks []Framework
+
 	for _, fw := range r.Frameworks {
 		if fw.Type == ftype {
 			frameworks = append(frameworks, fw)

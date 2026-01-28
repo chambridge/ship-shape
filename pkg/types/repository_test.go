@@ -96,6 +96,7 @@ func TestHasLanguage(t *testing.T) {
 	}
 }
 
+//nolint:gocognit // Table-driven tests can be complex but are still readable
 func TestGetFramework(t *testing.T) {
 	repo := Repository{
 		Frameworks: []Framework{
@@ -212,9 +213,9 @@ func TestGetFrameworksByType(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
+		name  string
 		ftype FrameworkType
-		want []string
+		want  []string
 	}{
 		{
 			name:  "test frameworks",

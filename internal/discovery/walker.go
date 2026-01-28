@@ -176,10 +176,10 @@ func (w *Walker) shouldExclude(relPath string, _ bool) bool {
 	// Check each exclusion pattern
 	for _, pattern := range w.ExcludePatterns {
 		// Check if any path component matches the pattern
-		// nolint: stringsseq
 		pathParts := strings.Split(relPath, string(os.PathSeparator))
 		for _, part := range pathParts {
-			if matched, _ := filepath.Match(pattern, part); matched {
+			matched, err := filepath.Match(pattern, part)
+			if err == nil && matched {
 				return true
 			}
 

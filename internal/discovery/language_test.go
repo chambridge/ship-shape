@@ -7,6 +7,7 @@ import (
 	"github.com/chambridge/ship-shape/pkg/types"
 )
 
+//nolint:gocognit // Table-driven tests can be complex but are still readable
 func TestLanguageDetector_Detect(t *testing.T) {
 	t.Run("single language - go", func(t *testing.T) {
 		dir := testutil.TempDir(t)
@@ -159,11 +160,11 @@ func TestLanguageDetector_Detect(t *testing.T) {
 		dir := testutil.TempDir(t)
 
 		testutil.WriteFile(t, dir, "main.go", "")
-		testutil.WriteFile(t, dir, "README.md", "")       // Unknown
-		testutil.WriteFile(t, dir, "config.yaml", "")     // Unknown
-		testutil.WriteFile(t, dir, "data.json", "")       // Unknown
-		testutil.WriteFile(t, dir, "Makefile", "")        // Unknown
-		testutil.WriteFile(t, dir, "build.sh", "")        // Unknown
+		testutil.WriteFile(t, dir, "README.md", "")   // Unknown
+		testutil.WriteFile(t, dir, "config.yaml", "") // Unknown
+		testutil.WriteFile(t, dir, "data.json", "")   // Unknown
+		testutil.WriteFile(t, dir, "Makefile", "")    // Unknown
+		testutil.WriteFile(t, dir, "build.sh", "")    // Unknown
 
 		walker := NewWalker(dir)
 		detector := NewLanguageDetector(walker)
@@ -288,123 +289,123 @@ func TestDetectLanguage(t *testing.T) {
 	detector := &LanguageDetector{}
 
 	tests := []struct {
-		name string
-		ext  string
+		name     string
+		ext      string
 		filename string
-		want types.Language
+		want     types.Language
 	}{
 		// Go
 		{
-			name: "go file",
-			ext:  ".go",
+			name:     "go file",
+			ext:      ".go",
 			filename: "main.go",
-			want: types.LanguageGo,
+			want:     types.LanguageGo,
 		},
 
 		// Python
 		{
-			name: "python file",
-			ext:  ".py",
+			name:     "python file",
+			ext:      ".py",
 			filename: "script.py",
-			want: types.LanguagePython,
+			want:     types.LanguagePython,
 		},
 		{
-			name: "python pyi file",
-			ext:  ".pyi",
+			name:     "python pyi file",
+			ext:      ".pyi",
 			filename: "types.pyi",
-			want: types.LanguagePython,
+			want:     types.LanguagePython,
 		},
 		{
-			name: "jupyter notebook",
-			ext:  ".ipynb",
+			name:     "jupyter notebook",
+			ext:      ".ipynb",
 			filename: "analysis.ipynb",
-			want: types.LanguagePython,
+			want:     types.LanguagePython,
 		},
 
 		// JavaScript
 		{
-			name: "javascript file",
-			ext:  ".js",
+			name:     "javascript file",
+			ext:      ".js",
 			filename: "index.js",
-			want: types.LanguageJavaScript,
+			want:     types.LanguageJavaScript,
 		},
 		{
-			name: "jsx file",
-			ext:  ".jsx",
+			name:     "jsx file",
+			ext:      ".jsx",
 			filename: "Component.jsx",
-			want: types.LanguageJavaScript,
+			want:     types.LanguageJavaScript,
 		},
 
 		// TypeScript
 		{
-			name: "typescript file",
-			ext:  ".ts",
+			name:     "typescript file",
+			ext:      ".ts",
 			filename: "app.ts",
-			want: types.LanguageTypeScript,
+			want:     types.LanguageTypeScript,
 		},
 		{
-			name: "tsx file",
-			ext:  ".tsx",
+			name:     "tsx file",
+			ext:      ".tsx",
 			filename: "Component.tsx",
-			want: types.LanguageTypeScript,
+			want:     types.LanguageTypeScript,
 		},
 
 		// Java
 		{
-			name: "java file",
-			ext:  ".java",
+			name:     "java file",
+			ext:      ".java",
 			filename: "Main.java",
-			want: types.LanguageJava,
+			want:     types.LanguageJava,
 		},
 
 		// Rust
 		{
-			name: "rust file",
-			ext:  ".rs",
+			name:     "rust file",
+			ext:      ".rs",
 			filename: "lib.rs",
-			want: types.LanguageRust,
+			want:     types.LanguageRust,
 		},
 
 		// C#
 		{
-			name: "csharp file",
-			ext:  ".cs",
+			name:     "csharp file",
+			ext:      ".cs",
 			filename: "Program.cs",
-			want: types.LanguageCSharp,
+			want:     types.LanguageCSharp,
 		},
 
 		// Ruby
 		{
-			name: "ruby file",
-			ext:  ".rb",
+			name:     "ruby file",
+			ext:      ".rb",
 			filename: "app.rb",
-			want: types.LanguageRuby,
+			want:     types.LanguageRuby,
 		},
 		{
-			name: "Gemfile",
-			ext:  "",
+			name:     "Gemfile",
+			ext:      "",
 			filename: "Gemfile",
-			want: types.LanguageRuby,
+			want:     types.LanguageRuby,
 		},
 		{
-			name: "Rakefile",
-			ext:  "",
+			name:     "Rakefile",
+			ext:      "",
 			filename: "Rakefile",
-			want: types.LanguageRuby,
+			want:     types.LanguageRuby,
 		},
 
 		// Unknown
 		{
-			name: "unknown extension",
-			ext:  ".txt",
+			name:     "unknown extension",
+			ext:      ".txt",
 			filename: "README.txt",
-			want: types.LanguageUnknown,
+			want:     types.LanguageUnknown,
 		},
 		{
-			name: "Makefile",
-			ext:  "",
+			name:     "Makefile",
+			ext:      "",
 			filename: "Makefile",
-			want: types.LanguageUnknown,
+			want:     types.LanguageUnknown,
 		},
 	}
 

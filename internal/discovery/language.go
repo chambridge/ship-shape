@@ -13,21 +13,21 @@ var ExtensionMap = map[string]types.Language{
 	".go": types.LanguageGo,
 
 	// Python
-	".py":   types.LanguagePython,
-	".pyw":  types.LanguagePython,
-	".pyx":  types.LanguagePython,
-	".pyi":  types.LanguagePython,
+	".py":    types.LanguagePython,
+	".pyw":   types.LanguagePython,
+	".pyx":   types.LanguagePython,
+	".pyi":   types.LanguagePython,
 	".ipynb": types.LanguagePython, // Jupyter notebooks
 
 	// JavaScript/TypeScript
-	".js":   types.LanguageJavaScript,
-	".jsx":  types.LanguageJavaScript,
-	".mjs":  types.LanguageJavaScript,
-	".cjs":  types.LanguageJavaScript,
-	".ts":   types.LanguageTypeScript,
-	".tsx":  types.LanguageTypeScript,
-	".mts":  types.LanguageTypeScript,
-	".cts":  types.LanguageTypeScript,
+	".js":  types.LanguageJavaScript,
+	".jsx": types.LanguageJavaScript,
+	".mjs": types.LanguageJavaScript,
+	".cjs": types.LanguageJavaScript,
+	".ts":  types.LanguageTypeScript,
+	".tsx": types.LanguageTypeScript,
+	".mts": types.LanguageTypeScript,
+	".cts": types.LanguageTypeScript,
 
 	// Java
 	".java": types.LanguageJava,
@@ -36,9 +36,9 @@ var ExtensionMap = map[string]types.Language{
 	".rs": types.LanguageRust,
 
 	// C#
-	".cs":    types.LanguageCSharp,
+	".cs":     types.LanguageCSharp,
 	".cshtml": types.LanguageCSharp,
-	".csx":   types.LanguageCSharp,
+	".csx":    types.LanguageCSharp,
 
 	// Ruby
 	".rb":   types.LanguageRuby,
@@ -73,13 +73,13 @@ func (d *LanguageDetector) Detect() ([]types.LanguageStats, error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
 	// Convert to LanguageStats
 	var stats []types.LanguageStats
+
 	for lang, count := range langCounts {
 		percentage := 0.0
 		if totalFiles > 0 {
@@ -122,7 +122,6 @@ func (d *LanguageDetector) detectLanguage(ext, name string) types.Language {
 // sortLanguageStats sorts language statistics by percentage (descending).
 func sortLanguageStats(stats []types.LanguageStats) {
 	// Simple bubble sort for small slices
-	//nolint:rangeint // Traditional loop syntax is clear
 	for i := 0; i < len(stats); i++ {
 		for j := i + 1; j < len(stats); j++ {
 			if stats[i].Percentage < stats[j].Percentage {
