@@ -71,7 +71,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: |
@@ -201,7 +201,7 @@ jobs:
           go build -o bin/shipshape-${{ matrix.goos }}-${{ matrix.goarch }}${EXT} ./cmd/shipshape
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: shipshape-${{ matrix.goos }}-${{ matrix.goarch }}
           path: bin/shipshape-*
