@@ -57,9 +57,9 @@ func CaptureOutput(t *testing.T, fn func()) (stdout, stderr string) {
 
 	// Close writers
 	//nolint:errcheck // Close errors are not critical in test cleanup
-	wOut.Close()
+	_ = wOut.Close() // #nosec G104 -- Close errors are not critical in test cleanup
 	//nolint:errcheck // Close errors are not critical in test cleanup
-	wErr.Close()
+	_ = wErr.Close() // #nosec G104 -- Close errors are not critical in test cleanup
 
 	// Restore original stdout/stderr
 	os.Stdout = oldStdout
